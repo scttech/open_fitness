@@ -12,6 +12,8 @@ import kotlinx.serialization.Serializable
 data class WorkoutExercise(
     val order: Int,
     val name: String,
+    /** Links into the [Exercise] library when picked from it; `name` stays the display source of truth. */
+    val exerciseId: Long? = null,
     val targetSets: Int? = null,
     val targetReps: Int? = null,
     val targetWeightKg: Double? = null,

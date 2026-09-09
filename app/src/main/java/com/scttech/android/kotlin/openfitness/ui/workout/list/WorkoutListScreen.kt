@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LibraryBooks
-import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -24,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,31 +31,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.Workout
 import com.scttech.android.kotlin.openfitness.ui.common.EmptyState
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun WorkoutListRoute(
     onWorkoutClick: (Long) -> Unit,
     onNewWorkout: () -> Unit,
     onBrowseTemplates: () -> Unit,
-    onSwitchProfile: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WorkoutListViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val coroutineScope = rememberCoroutineScope()
     WorkoutListScreen(
         uiState = uiState,
         onWorkoutClick = onWorkoutClick,
         onNewWorkout = onNewWorkout,
         onBrowseTemplates = onBrowseTemplates,
         onDeleteWorkout = viewModel::deleteWorkout,
-        onSwitchProfile = {
-            coroutineScope.launch {
-                viewModel.switchProfile()
-                onSwitchProfile()
-            }
-        },
         modifier = modifier,
     )
 }
@@ -69,7 +58,6 @@ internal fun WorkoutListScreen(
     onNewWorkout: () -> Unit,
     onBrowseTemplates: () -> Unit,
     onDeleteWorkout: (Workout) -> Unit,
-    onSwitchProfile: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -80,9 +68,6 @@ internal fun WorkoutListScreen(
                 actions = {
                     IconButton(onClick = onBrowseTemplates) {
                         Icon(Icons.Filled.LibraryBooks, contentDescription = "Browse templates")
-                    }
-                    IconButton(onClick = onSwitchProfile) {
-                        Icon(Icons.Filled.SwitchAccount, contentDescription = "Switch profile")
                     }
                 },
             )

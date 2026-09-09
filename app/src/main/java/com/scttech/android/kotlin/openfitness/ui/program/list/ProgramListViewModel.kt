@@ -1,10 +1,10 @@
-package com.scttech.android.kotlin.openfitness.ui.workout.list
+package com.scttech.android.kotlin.openfitness.ui.program.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
-import com.scttech.android.kotlin.openfitness.data.repository.WorkoutRepository
-import com.scttech.android.kotlin.openfitness.domain.model.Workout
+import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepository
+import com.scttech.android.kotlin.openfitness.domain.model.Program
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,24 +18,24 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class WorkoutListViewModel @Inject constructor(
-    private val workoutRepository: WorkoutRepository,
+class ProgramListViewModel @Inject constructor(
+    private val programRepository: ProgramRepository,
     private val profileRepository: ProfileRepository,
 ) : ViewModel() {
 
-    val uiState: StateFlow<WorkoutListUiState> = profileRepository.currentProfileId
+    val uiState: StateFlow<ProgramListUiState> = profileRepository.currentProfileId
         .filterNotNull()
-        .flatMapLatest { profileId -> workoutRepository.observeWorkoutsForProfile(profileId) }
-        .map<List<Workout>, WorkoutListUiState> { WorkoutListUiState.Success(it) }
+        .flatMapLatest { profileId -> programRepository.observeProgramsForProfile(profileId) }
+        .map<List<Program>, ProgramListUiState> { ProgramListUiState.Success(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = WorkoutListUiState.Loading,
+            initialValue = ProgramListUiState.Loading,
         )
 
-    fun deleteWorkout(workout: Workout) {
+    fun deleteProgram(program: Program) {
         viewModelScope.launch {
-            workoutRepository.deleteWorkout(workout)
+            programRepository.deleteProgram(program)
         }
     }
 }

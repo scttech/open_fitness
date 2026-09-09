@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.workout.detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +40,7 @@ internal fun WorkoutDetailRoute(
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onStartSession: (Long) -> Unit,
+    onExerciseClick: (Long) -> Unit,
     onDeleted: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WorkoutDetailViewModel = hiltViewModel(),
@@ -54,6 +56,7 @@ internal fun WorkoutDetailRoute(
         onBackClick = onBackClick,
         onEditClick = onEditClick,
         onStartSession = onStartSession,
+        onExerciseClick = onExerciseClick,
         onDeleteClick = viewModel::deleteWorkout,
         modifier = modifier,
     )
@@ -65,6 +68,7 @@ internal fun WorkoutDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onStartSession: (Long) -> Unit,
+    onExerciseClick: (Long) -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -117,7 +121,18 @@ internal fun WorkoutDetailScreen(
 
                     Text("Exercises", style = MaterialTheme.typography.titleLarge)
                     workout.exercises.sortedBy { it.order }.forEach { exercise ->
-                        Text("• ${exercise.name}" + exerciseDetail(exercise), style = MaterialTheme.typography.bodyLarge)
+                        val text = "• ${exercise.name}" + exerciseDetail(exercise)
+                        val exerciseId = exercise.exerciseId
+                        if (exerciseId != null) {
+                            Text(
+                                text,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.clickable { onExerciseClick(exerciseId) },
+                            )
+                        } else {
+                            Text(text, style = MaterialTheme.typography.bodyLarge)
+                        }
                     }
 
                     if (workout.notes.isNotBlank()) {

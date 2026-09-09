@@ -1,6 +1,7 @@
 package com.scttech.android.kotlin.openfitness
 
 import android.app.Application
+import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepository
 import com.scttech.android.kotlin.openfitness.data.repository.WorkoutRepository
 import com.scttech.android.kotlin.openfitness.di.ApplicationScope
 import dagger.hilt.android.HiltAndroidApp
@@ -13,6 +14,8 @@ class OpenFitnessApplication : Application() {
 
     @Inject lateinit var workoutRepository: WorkoutRepository
 
+    @Inject lateinit var exerciseRepository: ExerciseRepository
+
     @Inject
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
@@ -21,6 +24,7 @@ class OpenFitnessApplication : Application() {
         super.onCreate()
         applicationScope.launch {
             workoutRepository.seedTemplatesIfNeeded()
+            exerciseRepository.seedExercisesIfNeeded()
         }
     }
 }

@@ -15,11 +15,11 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.scttech.android.kotlin.openfitness.ui.navigation.HistoryRoute
+import com.scttech.android.kotlin.openfitness.ui.navigation.ExercisesRoute
 import com.scttech.android.kotlin.openfitness.ui.navigation.OpenFitnessNavHost
-import com.scttech.android.kotlin.openfitness.ui.navigation.StatsRoute
+import com.scttech.android.kotlin.openfitness.ui.navigation.ProgramsRoute
+import com.scttech.android.kotlin.openfitness.ui.navigation.SettingsRoute
 import com.scttech.android.kotlin.openfitness.ui.navigation.TopLevelDestination
-import com.scttech.android.kotlin.openfitness.ui.navigation.WeightRoute
 import com.scttech.android.kotlin.openfitness.ui.navigation.WorkoutsRoute
 
 @Composable
@@ -55,10 +55,10 @@ fun OpenFitnessApp() {
 
 private fun navigateToTopLevel(navController: NavHostController, destination: TopLevelDestination) {
     val route = when (destination) {
+        TopLevelDestination.PROGRAMS -> ProgramsRoute
         TopLevelDestination.WORKOUTS -> WorkoutsRoute
-        TopLevelDestination.HISTORY -> HistoryRoute
-        TopLevelDestination.WEIGHT -> WeightRoute
-        TopLevelDestination.STATS -> StatsRoute
+        TopLevelDestination.EXERCISES -> ExercisesRoute
+        TopLevelDestination.SETTINGS -> SettingsRoute
     }
     navController.navigate(route) {
         popUpTo(navController.graph.findStartDestination().id) {
@@ -70,8 +70,8 @@ private fun navigateToTopLevel(navController: NavHostController, destination: To
 }
 
 private fun TopLevelDestination.routeClass() = when (this) {
+    TopLevelDestination.PROGRAMS -> ProgramsRoute::class
     TopLevelDestination.WORKOUTS -> WorkoutsRoute::class
-    TopLevelDestination.HISTORY -> HistoryRoute::class
-    TopLevelDestination.WEIGHT -> WeightRoute::class
-    TopLevelDestination.STATS -> StatsRoute::class
+    TopLevelDestination.EXERCISES -> ExercisesRoute::class
+    TopLevelDestination.SETTINGS -> SettingsRoute::class
 }

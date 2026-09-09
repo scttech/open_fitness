@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,6 +30,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyleConfig
+import com.scttech.android.kotlin.openfitness.ui.common.ExercisePickerDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
 
 @Composable
@@ -162,6 +167,7 @@ private fun StyleFieldsForm(
 ) {
     val numberOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     val decimalOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+    var showExercisePicker by remember { mutableStateOf(false) }
 
     when (fields) {
         is StyleFormFields.TabataFields -> {
@@ -189,12 +195,10 @@ private fun StyleFieldsForm(
             }
         }
         is StyleFormFields.GtgFields -> {
-            OutlinedTextField(
-                value = fields.exerciseName,
-                onValueChange = { onFieldsChange(fields.copy(exerciseName = it)) },
-                label = { Text("Exercise") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+            ExerciseNameField(
+                name = fields.exerciseName,
+                onNameChange = { onFieldsChange(fields.copy(exerciseName = it, exerciseId = null)) },
+                onPickClick = { showExercisePicker = true },
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField("Reps/set", fields.repsPerSet, Modifier.weight(1f)) { onFieldsChange(fields.copy(repsPerSet = it)) }
@@ -205,12 +209,10 @@ private fun StyleFieldsForm(
             }
         }
         is StyleFormFields.PyramidFields -> {
-            OutlinedTextField(
-                value = fields.exerciseName,
-                onValueChange = { onFieldsChange(fields.copy(exerciseName = it)) },
-                label = { Text("Exercise") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+            ExerciseNameField(
+                name = fields.exerciseName,
+                onNameChange = { onFieldsChange(fields.copy(exerciseName = it, exerciseId = null)) },
+                onPickClick = { showExercisePicker = true },
             )
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 WorkoutStyleConfig.PyramidDirection.entries.forEachIndexed { index, direction ->
@@ -236,12 +238,10 @@ private fun StyleFieldsForm(
             }
         }
         is StyleFormFields.StepLoadingFields -> {
-            OutlinedTextField(
-                value = fields.exerciseName,
-                onValueChange = { onFieldsChange(fields.copy(exerciseName = it)) },
-                label = { Text("Exercise") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+            ExerciseNameField(
+                name = fields.exerciseName,
+                onNameChange = { onFieldsChange(fields.copy(exerciseName = it, exerciseId = null)) },
+                onPickClick = { showExercisePicker = true },
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -290,6 +290,37 @@ private fun StyleFieldsForm(
         TextButton(onClick = onAddCircuitExercise) {
             Icon(Icons.Filled.Add, contentDescription = null)
             Text("Add exercise")
+        }
+    }
+
+    if (showExercisePicker) {
+        ExercisePickerDialog(
+            onSelected = { exercise ->
+                onFieldsChange(fields.withPickedExercise(exercise.name, exercise.id))
+                showExercisePicker = false
+            },
+            onDismiss = { showExercisePicker = false },
+        )
+    }
+}
+
+@Composable
+private fun ExerciseNameField(
+    name: String,
+    onNameChange: (String) -> Unit,
+    onPickClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            label = { Text("Exercise") },
+            modifier = Modifier.weight(1f),
+            singleLine = true,
+        )
+        IconButton(onClick = onPickClick) {
+            Icon(Icons.Filled.LibraryBooks, contentDescription = "Pick from exercise library")
         }
     }
 }

@@ -1,7 +1,13 @@
 package com.scttech.android.kotlin.openfitness.di
 
+import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepository
+import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepositoryImpl
+import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepository
+import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepositoryImpl
+import com.scttech.android.kotlin.openfitness.data.repository.ProgramSessionRepository
+import com.scttech.android.kotlin.openfitness.data.repository.ProgramSessionRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.SessionRepository
 import com.scttech.android.kotlin.openfitness.data.repository.SessionRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.WeightRepository
@@ -28,4 +34,13 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindWeightRepository(impl: WeightRepositoryImpl): WeightRepository
+
+    @Binds
+    abstract fun bindExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
+
+    @Binds
+    abstract fun bindProgramRepository(impl: ProgramRepositoryImpl): ProgramRepository
+
+    @Binds
+    abstract fun bindProgramSessionRepository(impl: ProgramSessionRepositoryImpl): ProgramSessionRepository
 }

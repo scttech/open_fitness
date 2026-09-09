@@ -1,10 +1,10 @@
 package com.scttech.android.kotlin.openfitness.ui.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 
@@ -41,12 +41,39 @@ data class ActiveSessionRoute(val workoutId: Long)
 @Serializable
 data class SessionDetailRoute(val sessionId: Long)
 
+@Serializable
+data object ExercisesRoute
+
+@Serializable
+data class ExerciseDetailRoute(val exerciseId: Long)
+
+@Serializable
+data class ExerciseBuilderRoute(val exerciseId: Long = 0L)
+
+@Serializable
+data object ProgramsRoute
+
+@Serializable
+data class ProgramBuilderRoute(val programId: Long = 0L)
+
+@Serializable
+data class ProgramDetailRoute(val programId: Long)
+
+@Serializable
+data class ProgramTestCheckInRoute(val programId: Long)
+
+@Serializable
+data class ActiveProgramSessionRoute(val programId: Long)
+
+@Serializable
+data object SettingsRoute
+
 enum class TopLevelDestination(
     val label: String,
     val icon: ImageVector,
 ) {
+    PROGRAMS("Programs", Icons.Filled.EmojiEvents),
     WORKOUTS("Workouts", Icons.Filled.FitnessCenter),
-    HISTORY("History", Icons.Filled.History),
-    WEIGHT("Weight", Icons.Filled.MonitorWeight),
-    STATS("Stats", Icons.Filled.Assessment),
+    EXERCISES("Exercises", Icons.Filled.MenuBook),
+    SETTINGS("Settings", Icons.Filled.Settings),
 }

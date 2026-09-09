@@ -26,6 +26,7 @@ sealed interface StyleFormFields {
         val repsPerSet: String,
         val targetSetsPerDay: String,
         val minRestMinutesBetweenSets: String,
+        val exerciseId: Long? = null,
     ) : StyleFormFields
 
     data class PyramidFields(
@@ -34,6 +35,7 @@ sealed interface StyleFormFields {
         val startReps: String,
         val stepReps: String,
         val peakReps: String,
+        val exerciseId: Long? = null,
     ) : StyleFormFields
 
     data class DensityFields(
@@ -48,6 +50,7 @@ sealed interface StyleFormFields {
         val setCount: String,
         val repsPerSet: String,
         val deloadEverySessions: String,
+        val exerciseId: Long? = null,
     ) : StyleFormFields
 
     companion object {
@@ -70,12 +73,14 @@ sealed interface StyleFormFields {
             )
             is WorkoutStyleConfig.GreaseTheGroove -> GtgFields(
                 exerciseName = config.exerciseName,
+                exerciseId = exercises.firstOrNull()?.exerciseId,
                 repsPerSet = config.repsPerSet.toString(),
                 targetSetsPerDay = config.targetSetsPerDay.toString(),
                 minRestMinutesBetweenSets = config.minRestMinutesBetweenSets.toString(),
             )
             is WorkoutStyleConfig.Pyramid -> PyramidFields(
                 exerciseName = exercises.firstOrNull()?.name.orEmpty(),
+                exerciseId = exercises.firstOrNull()?.exerciseId,
                 direction = config.direction,
                 startReps = config.startReps.toString(),
                 stepReps = config.stepReps.toString(),
@@ -87,6 +92,7 @@ sealed interface StyleFormFields {
             )
             is WorkoutStyleConfig.StepLoading -> StepLoadingFields(
                 exerciseName = exercises.firstOrNull()?.name.orEmpty(),
+                exerciseId = exercises.firstOrNull()?.exerciseId,
                 startWeightKg = config.startWeightKg.toString(),
                 stepWeightKg = config.stepWeightKg.toString(),
                 setCount = config.setCount.toString(),
@@ -131,6 +137,14 @@ fun StyleFormFields.toStyleConfig(): WorkoutStyleConfig = when (this) {
     )
 }
 
+/** Applies a library-picked exercise to the styles that target a single named exercise. */
+fun StyleFormFields.withPickedExercise(name: String, exerciseId: Long?): StyleFormFields = when (this) {
+    is StyleFormFields.GtgFields -> copy(exerciseName = name, exerciseId = exerciseId)
+    is StyleFormFields.PyramidFields -> copy(exerciseName = name, exerciseId = exerciseId)
+    is StyleFormFields.StepLoadingFields -> copy(exerciseName = name, exerciseId = exerciseId)
+    else -> this
+}
+
 fun StyleFormFields.singleExerciseName(): String? = when (this) {
     is StyleFormFields.GtgFields -> exerciseName
     is StyleFormFields.PyramidFields -> exerciseName
@@ -142,13 +156,14 @@ fun StyleFormFields.toExercises(circuitExerciseNames: List<String>): List<Workou
     is StyleFormFields.TabataFields -> circuitExerciseNames.mapIndexed { i, name -> WorkoutExercise(order = i, name = name) }
     is StyleFormFields.DensityFields -> circuitExerciseNames.mapIndexed { i, name -> WorkoutExercise(order = i, name = name) }
     is StyleFormFields.GtgFields -> listOf(
-        WorkoutExercise(order = 0, name = exerciseName, targetReps = repsPerSet.toIntOrNull()),
+        WorkoutExercise(order = 0, name = exerciseName, exerciseId = exerciseId, targetReps = repsPerSet.toIntOrNull()),
     )
-    is StyleFormFields.PyramidFields -> listOf(WorkoutExercise(order = 0, name = exerciseName))
+    is StyleFormFields.PyramidFields -> listOf(WorkoutExercise(order = 0, name = exerciseName, exerciseId = exerciseId))
     is StyleFormFields.StepLoadingFields -> listOf(
         WorkoutExercise(
             order = 0,
             name = exerciseName,
+            exerciseId = exerciseId,
             targetReps = repsPerSet.toIntOrNull(),
             targetWeightKg = startWeightKg.toDoubleOrNull(),
         ),
