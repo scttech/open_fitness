@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.KeepScreenOn
 import com.scttech.android.kotlin.openfitness.ui.common.timer.PhaseTimerDisplay
 import com.scttech.android.kotlin.openfitness.ui.common.timer.TimerColorPrefs
 
@@ -45,6 +46,8 @@ internal fun ActiveProgramSessionRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val timerColors by viewModel.timerColors.collectAsStateWithLifecycle()
+
+    KeepScreenOn()
 
     ActiveProgramSessionScreen(
         uiState = uiState,

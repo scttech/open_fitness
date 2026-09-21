@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.KeepScreenOn
 import com.scttech.android.kotlin.openfitness.ui.common.timer.PhaseTimerDisplay
 import com.scttech.android.kotlin.openfitness.ui.common.timer.TimerColorPrefs
 import com.scttech.android.kotlin.openfitness.ui.common.timer.TimerPhaseKind
@@ -55,6 +56,8 @@ internal fun ActiveSessionRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val timerColors by viewModel.timerColors.collectAsStateWithLifecycle()
+
+    KeepScreenOn()
 
     // Every session type shows its own completion screen (with a Done button) instead of
     // auto-navigating away, so the user actually sees the motivational message before leaving.

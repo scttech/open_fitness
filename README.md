@@ -1,4 +1,5 @@
 <img src="app/src/main/res/drawable-nodpi/img_open_fitness_logo.png" alt="Open Fitness Icon" width="128">
+
 # Open Fitness
 
 Open Fitness is a fitness app written in Kotlin.
