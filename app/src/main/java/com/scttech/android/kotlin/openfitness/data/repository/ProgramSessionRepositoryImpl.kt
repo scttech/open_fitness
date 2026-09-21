@@ -6,6 +6,7 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.asEntity
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramSession
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,6 +20,9 @@ class ProgramSessionRepositoryImpl @Inject constructor(
 
     override fun observeSessionsForProfile(profileId: Long): Flow<List<ProgramSession>> =
         programSessionDao.observeSessionsForProfile(profileId).map { entities -> entities.map { it.asDomainModel() } }
+
+    override suspend fun countCompletedSessionsSince(programId: Long, since: Instant): Int =
+        programSessionDao.countCompletedSessionsSince(programId, since.toEpochMilliseconds())
 
     override suspend fun startSession(session: ProgramSession): Long =
         programSessionDao.insert(session.asEntity())

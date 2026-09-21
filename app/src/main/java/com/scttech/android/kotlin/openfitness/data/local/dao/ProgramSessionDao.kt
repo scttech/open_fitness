@@ -17,6 +17,12 @@ interface ProgramSessionDao {
     @Query("SELECT * FROM program_sessions WHERE profileId = :profileId ORDER BY startedAtEpochMillis DESC")
     fun observeSessionsForProfile(profileId: Long): Flow<List<ProgramSessionEntity>>
 
+    @Query(
+        "SELECT COUNT(*) FROM program_sessions " +
+            "WHERE programId = :programId AND completedAtEpochMillis IS NOT NULL AND startedAtEpochMillis >= :sinceEpochMillis",
+    )
+    suspend fun countCompletedSessionsSince(programId: Long, sinceEpochMillis: Long): Int
+
     @Insert
     suspend fun insert(session: ProgramSessionEntity): Long
 
