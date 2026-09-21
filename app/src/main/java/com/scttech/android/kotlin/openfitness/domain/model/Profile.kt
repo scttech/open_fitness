@@ -8,4 +8,9 @@ data class Profile(
     val name: String,
     val colorIndex: Int = 0,
     val createdAt: Instant,
+    /** Whether workout/program timers play tick and phase-change sounds for this profile. */
+    val timerSoundEnabled: Boolean = true,
+    /** Null means "use the default" - see [com.scttech.android.kotlin.openfitness.ui.theme.DefaultTimerWorkColor]. */
+    val timerWorkColorArgb: Int? = null,
+    val timerRestColorArgb: Int? = null,
 )

@@ -11,6 +11,9 @@ data class ProfileEntity(
     val name: String,
     val colorIndex: Int,
     val createdAtEpochMillis: Long,
+    val timerSoundEnabled: Boolean = true,
+    val timerWorkColorArgb: Int? = null,
+    val timerRestColorArgb: Int? = null,
 )
 
 fun ProfileEntity.asDomainModel() = Profile(
@@ -18,6 +21,9 @@ fun ProfileEntity.asDomainModel() = Profile(
     name = name,
     colorIndex = colorIndex,
     createdAt = Instant.fromEpochMilliseconds(createdAtEpochMillis),
+    timerSoundEnabled = timerSoundEnabled,
+    timerWorkColorArgb = timerWorkColorArgb,
+    timerRestColorArgb = timerRestColorArgb,
 )
 
 fun Profile.asEntity() = ProfileEntity(
@@ -25,4 +31,7 @@ fun Profile.asEntity() = ProfileEntity(
     name = name,
     colorIndex = colorIndex,
     createdAtEpochMillis = createdAt.toEpochMilliseconds(),
+    timerSoundEnabled = timerSoundEnabled,
+    timerWorkColorArgb = timerWorkColorArgb,
+    timerRestColorArgb = timerRestColorArgb,
 )

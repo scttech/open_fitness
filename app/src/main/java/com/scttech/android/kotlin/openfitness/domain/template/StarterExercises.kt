@@ -170,6 +170,42 @@ object StarterExercises {
             createdAt = TEMPLATE_EPOCH,
         ),
         Exercise(
+            name = "Mace 360 Swing",
+            category = ExerciseCategory.FULL_BODY,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Grip near the base of the handle, arms extended. Circle the mace around your head and " +
+                "behind your back in one continuous, controlled loop, switching direction each rep and keeping your " +
+                "core braced so your lower back doesn't arch.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace 10-to-2 Swing",
+            category = ExerciseCategory.SHOULDERS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Start with the mace overhead like a clock at 12. Swing it down and across your body to the " +
+                "\"10\" or \"2\" position, letting the head of the mace lead, then reverse back overhead - keep the " +
+                "movement smooth rather than jerky.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Squat",
+            category = ExerciseCategory.LEGS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Hold the mace by the handle at chest height, head pointing up. Squat to at least parallel " +
+                "keeping the mace still and your torso upright - the offset weight will challenge your balance and " +
+                "core more than a standard squat.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Front Raise (Around the World)",
+            category = ExerciseCategory.SHOULDERS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Hold the mace at both ends in front of you. Trace a slow circle with the head of the mace " +
+                "out to one side, overhead, and around to the other side, keeping your arms just short of locked out " +
+                "and your ribs down throughout.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
             name = "Stretching / Mobility Flow",
             category = ExerciseCategory.MOBILITY,
             equipment = ExerciseEquipment.OTHER,

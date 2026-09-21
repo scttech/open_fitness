@@ -9,6 +9,9 @@ interface WorkoutRepository {
     fun observeWorkout(id: Long): Flow<Workout?>
     suspend fun saveWorkout(workout: Workout): Long
     suspend fun deleteWorkout(workout: Workout)
+
+    /** True if [profileId] already has a workout named [name] (case-insensitive), other than [excludeWorkoutId]. */
+    suspend fun nameExists(profileId: Long, name: String, excludeWorkoutId: Long): Boolean
     suspend fun copyTemplateToProfile(template: Workout, profileId: Long): Long
     suspend fun seedTemplatesIfNeeded()
 }

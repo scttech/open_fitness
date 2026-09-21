@@ -1,10 +1,10 @@
 package com.scttech.android.kotlin.openfitness.ui.session
 
 import com.scttech.android.kotlin.openfitness.domain.model.PerformedSet
+import com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyle
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyleConfig
-
-enum class TabataPhase { WORK, REST, ROUND_REST, DONE }
+import com.scttech.android.kotlin.openfitness.ui.common.timer.PhaseTimerState
 
 sealed interface ActiveSessionUiState {
 
@@ -12,16 +12,10 @@ sealed interface ActiveSessionUiState {
 
     data class TabataSession(
         val workoutName: String,
-        val config: WorkoutStyleConfig.Tabata,
-        val exercises: List<String>,
-        val phase: TabataPhase,
-        val currentCycle: Int,
-        val currentRound: Int,
-        val currentExerciseIndex: Int,
-        val secondsRemaining: Int,
-        val currentExerciseName: String,
-        val isRunning: Boolean,
+        val timerState: PhaseTimerState,
         val isFinished: Boolean,
+        /** Set once [isFinished], so the screen can send the user off on a high note. */
+        val completionMessage: String? = null,
     ) : ActiveSessionUiState
 
     /** Used for the three set-by-set logging styles: Grease the Groove, Pyramid, Step-Loading. */
@@ -29,6 +23,7 @@ sealed interface ActiveSessionUiState {
         val workoutName: String,
         val style: WorkoutStyle,
         val exerciseName: String,
+        val exerciseId: Long?,
         val targetDescription: String,
         val nextSetTargetReps: Int?,
         val nextSetTargetWeightKg: Double?,
@@ -36,15 +31,32 @@ sealed interface ActiveSessionUiState {
         val repsInput: String,
         val weightInput: String,
         val isFinished: Boolean,
+        /** Set once [isFinished], so the screen can send the user off on a high note. */
+        val completionMessage: String? = null,
+        /** Null for Grease the Groove, which has no fixed session-length - only a daily target. */
+        val totalSets: Int? = null,
+        /** Non-null while resting between sets; the rest duration behind it lives in [WorkoutStyleConfig]. */
+        val restTimerState: PhaseTimerState? = null,
     ) : ActiveSessionUiState
 
     data class DensitySession(
         val workoutName: String,
         val config: WorkoutStyleConfig.Density,
-        val exercises: List<String>,
+        val exercises: List<WorkoutExercise>,
         val elapsedSeconds: Int,
         val roundsCompleted: Int,
         val isRunning: Boolean,
         val isFinished: Boolean,
+        /** Set once [isFinished], so the screen can send the user off on a high note. */
+        val completionMessage: String? = null,
+    ) : ActiveSessionUiState
+
+    data class EmomSession(
+        val workoutName: String,
+        val config: WorkoutStyleConfig.Emom,
+        val timerState: PhaseTimerState,
+        val isFinished: Boolean,
+        /** Set once [isFinished], so the screen can send the user off on a high note. */
+        val completionMessage: String? = null,
     ) : ActiveSessionUiState
 }

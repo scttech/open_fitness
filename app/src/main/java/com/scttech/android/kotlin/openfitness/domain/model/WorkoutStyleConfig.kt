@@ -43,6 +43,7 @@ sealed interface WorkoutStyleConfig {
         val startReps: Int = 2,
         val stepReps: Int = 2,
         val peakReps: Int = 10,
+        val restSeconds: Int = 60,
     ) : WorkoutStyleConfig {
         override val style get() = WorkoutStyle.PYRAMID
 
@@ -78,10 +79,21 @@ sealed interface WorkoutStyleConfig {
         val setCount: Int = 5,
         val repsPerSet: Int = 5,
         val deloadEverySessions: Int? = null,
+        val restSeconds: Int = 60,
     ) : WorkoutStyleConfig {
         override val style get() = WorkoutStyle.STEP_LOADING
 
         fun weightForSet(setIndex: Int): Double = startWeightKg + stepWeightKg * setIndex
+    }
+
+    /** Every Minute on the Minute: each round cycles through all exercises, 60s each, then rests. */
+    @Serializable
+    data class Emom(
+        val repGoal: Int = 10,
+        val rounds: Int = 3,
+        val restBetweenRoundsSeconds: Int = 60,
+    ) : WorkoutStyleConfig {
+        override val style get() = WorkoutStyle.EMOM
     }
 
     companion object {
@@ -91,6 +103,7 @@ sealed interface WorkoutStyleConfig {
             WorkoutStyle.PYRAMID -> Pyramid()
             WorkoutStyle.DENSITY -> Density()
             WorkoutStyle.STEP_LOADING -> StepLoading()
+            WorkoutStyle.EMOM -> Emom()
         }
     }
 }

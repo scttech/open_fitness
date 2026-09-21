@@ -25,4 +25,13 @@ interface ProfileDao {
 
     @Delete
     suspend fun delete(profile: ProfileEntity)
+
+    @Query("UPDATE profiles SET timerSoundEnabled = :enabled WHERE id = :profileId")
+    suspend fun updateTimerSoundEnabled(profileId: Long, enabled: Boolean)
+
+    @Query("UPDATE profiles SET timerWorkColorArgb = :argb WHERE id = :profileId")
+    suspend fun updateTimerWorkColorArgb(profileId: Long, argb: Int)
+
+    @Query("UPDATE profiles SET timerRestColorArgb = :argb WHERE id = :profileId")
+    suspend fun updateTimerRestColorArgb(profileId: Long, argb: Int)
 }

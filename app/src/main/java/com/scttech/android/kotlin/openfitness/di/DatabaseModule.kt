@@ -12,6 +12,8 @@ import com.scttech.android.kotlin.openfitness.data.local.dao.WeightEntryDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.WorkoutDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.WorkoutSessionDao
 import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_1_2
+import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_2_3
+import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_3_4
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,7 +29,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): OpenFitnessDatabase =
         Room.databaseBuilder(context, OpenFitnessDatabase::class.java, OpenFitnessDatabase.DATABASE_NAME)
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
 
     @Provides

@@ -25,7 +25,7 @@ sealed interface ProgramTestCheckInUiState {
         val notesInput: String = "",
         val saved: Boolean = false,
     ) : ProgramTestCheckInUiState {
-        val canSave: Boolean get() = resultInput.toDoubleOrNull() != null
+        val canSave: Boolean get() = resultInput.toIntOrNull() != null
     }
 }
 
@@ -60,7 +60,7 @@ class ProgramTestCheckInViewModel @Inject constructor(
     fun save() {
         val state = _uiState.value
         if (state !is ProgramTestCheckInUiState.Loaded || !state.canSave) return
-        val result = state.resultInput.toDoubleOrNull() ?: return
+        val result = state.resultInput.toIntOrNull() ?: return
         viewModelScope.launch {
             programRepository.recordTest(state.program.id, result, state.notesInput.trim())
             _uiState.update { (it as ProgramTestCheckInUiState.Loaded).copy(saved = true) }

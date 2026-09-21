@@ -46,11 +46,34 @@ class StyleFormFieldsTest {
             setCount = "5",
             repsPerSet = "5",
             deloadEverySessions = "",
+            restSeconds = "60",
         )
         val exercises = fields.toExercises(emptyList())
         assertEquals(1, exercises.size)
         assertEquals("Back Squat", exercises.first().name)
         assertEquals(5, exercises.first().targetReps)
         assertEquals(40.0, exercises.first().targetWeightKg)
+    }
+
+    @Test
+    fun `emom fields convert to config using entered values`() {
+        val fields = StyleFormFields.EmomFields(
+            repGoal = "15",
+            rounds = "5",
+            restBetweenRoundsSeconds = "45",
+        )
+        val config = fields.toStyleConfig() as WorkoutStyleConfig.Emom
+        assertEquals(15, config.repGoal)
+        assertEquals(5, config.rounds)
+        assertEquals(45, config.restBetweenRoundsSeconds)
+    }
+
+    @Test
+    fun `emom fields produce a named exercise per circuit entry`() {
+        val fields = StyleFormFields.EmomFields(repGoal = "10", rounds = "3", restBetweenRoundsSeconds = "60")
+        val exercises = fields.toExercises(listOf(CircuitExerciseField("Kettlebell Swing"), CircuitExerciseField("Push-Up")))
+        assertEquals(2, exercises.size)
+        assertEquals("Kettlebell Swing", exercises[0].name)
+        assertEquals("Push-Up", exercises[1].name)
     }
 }

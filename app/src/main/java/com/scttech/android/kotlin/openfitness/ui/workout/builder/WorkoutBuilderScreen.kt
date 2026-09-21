@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyleConfig
 import com.scttech.android.kotlin.openfitness.ui.common.ExercisePickerDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.RestGuidanceDialog
+import com.scttech.android.kotlin.openfitness.ui.common.SetsRepsGuidanceDialog
 
 @Composable
 internal fun WorkoutBuilderRoute(
@@ -64,7 +67,7 @@ internal fun WorkoutBuilderRoute(
         onNameChange = viewModel::updateName,
         onNotesChange = viewModel::updateNotes,
         onFieldsChange = viewModel::updateFields,
-        onCircuitExerciseChange = viewModel::updateCircuitExerciseName,
+        onPickCircuitExercise = viewModel::pickCircuitExercise,
         onAddCircuitExercise = viewModel::addCircuitExercise,
         onRemoveCircuitExercise = viewModel::removeCircuitExercise,
         onSave = viewModel::save,
@@ -79,7 +82,7 @@ internal fun WorkoutBuilderScreen(
     onNameChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     onFieldsChange: (StyleFormFields) -> Unit,
-    onCircuitExerciseChange: (Int, String) -> Unit,
+    onPickCircuitExercise: (Int, String, Long?) -> Unit,
     onAddCircuitExercise: () -> Unit,
     onRemoveCircuitExercise: (Int) -> Unit,
     onSave: () -> Unit,
@@ -120,6 +123,8 @@ internal fun WorkoutBuilderScreen(
                         value = uiState.name,
                         onValueChange = onNameChange,
                         label = { Text("Workout name") },
+                        isError = uiState.nameError != null,
+                        supportingText = uiState.nameError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -128,10 +133,10 @@ internal fun WorkoutBuilderScreen(
 
                     StyleFieldsForm(
                         fields = uiState.fields,
-                        circuitExerciseNames = uiState.circuitExerciseNames,
+                        circuitExercises = uiState.circuitExercises,
                         usesCircuitExercises = uiState.usesCircuitExercises,
                         onFieldsChange = onFieldsChange,
-                        onCircuitExerciseChange = onCircuitExerciseChange,
+                        onPickCircuitExercise = onPickCircuitExercise,
                         onAddCircuitExercise = onAddCircuitExercise,
                         onRemoveCircuitExercise = onRemoveCircuitExercise,
                     )
@@ -158,28 +163,43 @@ internal fun WorkoutBuilderScreen(
 @Composable
 private fun StyleFieldsForm(
     fields: StyleFormFields,
-    circuitExerciseNames: List<String>,
+    circuitExercises: List<CircuitExerciseField>,
     usesCircuitExercises: Boolean,
     onFieldsChange: (StyleFormFields) -> Unit,
-    onCircuitExerciseChange: (Int, String) -> Unit,
+    onPickCircuitExercise: (Int, String, Long?) -> Unit,
     onAddCircuitExercise: () -> Unit,
     onRemoveCircuitExercise: (Int) -> Unit,
 ) {
     val numberOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     val decimalOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     var showExercisePicker by remember { mutableStateOf(false) }
+    var circuitPickerIndex by remember { mutableStateOf<Int?>(null) }
+    var showRestGuidance by remember { mutableStateOf(false) }
+    var showSetsRepsGuidance by remember { mutableStateOf(false) }
 
     when (fields) {
         is StyleFormFields.TabataFields -> {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField("Work (sec)", fields.workSeconds, Modifier.weight(1f)) { onFieldsChange(fields.copy(workSeconds = it)) }
-                NumberField("Rest (sec)", fields.restSeconds, Modifier.weight(1f)) { onFieldsChange(fields.copy(restSeconds = it)) }
+                NumberField(
+                    "Rest (sec)",
+                    fields.restSeconds,
+                    Modifier.weight(1f),
+                    onHelpClick = { showRestGuidance = true },
+                    helpContentDescription = "How much rest do I need?",
+                ) { onFieldsChange(fields.copy(restSeconds = it)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField("Rounds/cycle", fields.roundsPerCycle, Modifier.weight(1f)) { onFieldsChange(fields.copy(roundsPerCycle = it)) }
                 NumberField("Cycles", fields.cycles, Modifier.weight(1f)) { onFieldsChange(fields.copy(cycles = it)) }
             }
-            NumberField("Rest between cycles (sec)", fields.restBetweenCyclesSeconds, Modifier.fillMaxWidth()) {
+            NumberField(
+                "Rest between cycles (sec)",
+                fields.restBetweenCyclesSeconds,
+                Modifier.fillMaxWidth(),
+                onHelpClick = { showRestGuidance = true },
+                helpContentDescription = "How much rest do I need?",
+            ) {
                 onFieldsChange(fields.copy(restBetweenCyclesSeconds = it))
             }
             Row(
@@ -197,21 +217,31 @@ private fun StyleFieldsForm(
         is StyleFormFields.GtgFields -> {
             ExerciseNameField(
                 name = fields.exerciseName,
-                onNameChange = { onFieldsChange(fields.copy(exerciseName = it, exerciseId = null)) },
                 onPickClick = { showExercisePicker = true },
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NumberField("Reps/set", fields.repsPerSet, Modifier.weight(1f)) { onFieldsChange(fields.copy(repsPerSet = it)) }
+                NumberField(
+                    "Reps/set",
+                    fields.repsPerSet,
+                    Modifier.weight(1f),
+                    onHelpClick = { showSetsRepsGuidance = true },
+                    helpContentDescription = "How many sets and reps do I need?",
+                ) { onFieldsChange(fields.copy(repsPerSet = it)) }
                 NumberField("Sets/day", fields.targetSetsPerDay, Modifier.weight(1f)) { onFieldsChange(fields.copy(targetSetsPerDay = it)) }
             }
-            NumberField("Min rest between sets (min)", fields.minRestMinutesBetweenSets, Modifier.fillMaxWidth()) {
+            NumberField(
+                "Min rest between sets (min)",
+                fields.minRestMinutesBetweenSets,
+                Modifier.fillMaxWidth(),
+                onHelpClick = { showRestGuidance = true },
+                helpContentDescription = "How much rest do I need?",
+            ) {
                 onFieldsChange(fields.copy(minRestMinutesBetweenSets = it))
             }
         }
         is StyleFormFields.PyramidFields -> {
             ExerciseNameField(
                 name = fields.exerciseName,
-                onNameChange = { onFieldsChange(fields.copy(exerciseName = it, exerciseId = null)) },
                 onPickClick = { showExercisePicker = true },
             )
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
@@ -226,9 +256,24 @@ private fun StyleFieldsForm(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NumberField("Start reps", fields.startReps, Modifier.weight(1f)) { onFieldsChange(fields.copy(startReps = it)) }
+                NumberField(
+                    "Start reps",
+                    fields.startReps,
+                    Modifier.weight(1f),
+                    onHelpClick = { showSetsRepsGuidance = true },
+                    helpContentDescription = "How many sets and reps do I need?",
+                ) { onFieldsChange(fields.copy(startReps = it)) }
                 NumberField("Step", fields.stepReps, Modifier.weight(1f)) { onFieldsChange(fields.copy(stepReps = it)) }
                 NumberField("Peak reps", fields.peakReps, Modifier.weight(1f)) { onFieldsChange(fields.copy(peakReps = it)) }
+            }
+            NumberField(
+                "Rest between sets (sec)",
+                fields.restSeconds,
+                Modifier.fillMaxWidth(),
+                onHelpClick = { showRestGuidance = true },
+                helpContentDescription = "How much rest do I need?",
+            ) {
+                onFieldsChange(fields.copy(restSeconds = it))
             }
         }
         is StyleFormFields.DensityFields -> {
@@ -240,7 +285,6 @@ private fun StyleFieldsForm(
         is StyleFormFields.StepLoadingFields -> {
             ExerciseNameField(
                 name = fields.exerciseName,
-                onNameChange = { onFieldsChange(fields.copy(exerciseName = it, exerciseId = null)) },
                 onPickClick = { showExercisePicker = true },
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -263,26 +307,66 @@ private fun StyleFieldsForm(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField("Sets", fields.setCount, Modifier.weight(1f)) { onFieldsChange(fields.copy(setCount = it)) }
-                NumberField("Reps/set", fields.repsPerSet, Modifier.weight(1f)) { onFieldsChange(fields.copy(repsPerSet = it)) }
+                NumberField(
+                    "Reps/set",
+                    fields.repsPerSet,
+                    Modifier.weight(1f),
+                    onHelpClick = { showSetsRepsGuidance = true },
+                    helpContentDescription = "How many sets and reps do I need?",
+                ) { onFieldsChange(fields.copy(repsPerSet = it)) }
+            }
+            NumberField(
+                "Rest between sets (sec)",
+                fields.restSeconds,
+                Modifier.fillMaxWidth(),
+                onHelpClick = { showRestGuidance = true },
+                helpContentDescription = "How much rest do I need?",
+            ) {
+                onFieldsChange(fields.copy(restSeconds = it))
             }
             NumberField("Deload every N sessions (optional)", fields.deloadEverySessions, Modifier.fillMaxWidth()) {
                 onFieldsChange(fields.copy(deloadEverySessions = it))
+            }
+        }
+        is StyleFormFields.EmomFields -> {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(
+                    "Rep goal",
+                    fields.repGoal,
+                    Modifier.weight(1f),
+                    onHelpClick = { showSetsRepsGuidance = true },
+                    helpContentDescription = "How many sets and reps do I need?",
+                ) { onFieldsChange(fields.copy(repGoal = it)) }
+                NumberField("Rounds", fields.rounds, Modifier.weight(1f)) { onFieldsChange(fields.copy(rounds = it)) }
+            }
+            NumberField(
+                "Rest between rounds (sec)",
+                fields.restBetweenRoundsSeconds,
+                Modifier.fillMaxWidth(),
+                onHelpClick = { showRestGuidance = true },
+                helpContentDescription = "How much rest do I need?",
+            ) {
+                onFieldsChange(fields.copy(restBetweenRoundsSeconds = it))
             }
         }
     }
 
     if (usesCircuitExercises) {
         Text("Exercises", style = MaterialTheme.typography.titleLarge)
-        circuitExerciseNames.forEachIndexed { index, name ->
+        circuitExercises.forEachIndexed { index, circuitExercise ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { onCircuitExerciseChange(index, it) },
+                    value = circuitExercise.name,
+                    onValueChange = {},
+                    readOnly = true,
                     label = { Text("Exercise ${index + 1}") },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
                 )
-                IconButton(onClick = { onRemoveCircuitExercise(index) }, enabled = circuitExerciseNames.size > 1) {
+                IconButton(onClick = { circuitPickerIndex = index }) {
+                    Icon(Icons.Filled.LibraryBooks, contentDescription = "Pick exercise ${index + 1} from library")
+                }
+                IconButton(onClick = { onRemoveCircuitExercise(index) }, enabled = circuitExercises.size > 1) {
                     Icon(Icons.Filled.Delete, contentDescription = "Remove exercise ${index + 1}")
                 }
             }
@@ -302,19 +386,38 @@ private fun StyleFieldsForm(
             onDismiss = { showExercisePicker = false },
         )
     }
+
+    val pickerIndex = circuitPickerIndex
+    if (pickerIndex != null) {
+        ExercisePickerDialog(
+            onSelected = { exercise ->
+                onPickCircuitExercise(pickerIndex, exercise.name, exercise.id)
+                circuitPickerIndex = null
+            },
+            onDismiss = { circuitPickerIndex = null },
+        )
+    }
+
+    if (showSetsRepsGuidance) {
+        SetsRepsGuidanceDialog(onDismiss = { showSetsRepsGuidance = false })
+    }
+
+    if (showRestGuidance) {
+        RestGuidanceDialog(onDismiss = { showRestGuidance = false })
+    }
 }
 
 @Composable
 private fun ExerciseNameField(
     name: String,
-    onNameChange: (String) -> Unit,
     onPickClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedTextField(
             value = name,
-            onValueChange = onNameChange,
+            onValueChange = {},
+            readOnly = true,
             label = { Text("Exercise") },
             modifier = Modifier.weight(1f),
             singleLine = true,
@@ -330,6 +433,8 @@ private fun NumberField(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
+    onHelpClick: (() -> Unit)? = null,
+    helpContentDescription: String = "Help",
     onValueChange: (String) -> Unit,
 ) {
     OutlinedTextField(
@@ -339,5 +444,12 @@ private fun NumberField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = modifier,
         singleLine = true,
+        trailingIcon = onHelpClick?.let {
+            {
+                IconButton(onClick = it) {
+                    Icon(Icons.Filled.Info, contentDescription = helpContentDescription)
+                }
+            }
+        },
     )
 }

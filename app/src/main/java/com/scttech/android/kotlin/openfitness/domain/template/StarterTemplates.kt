@@ -166,6 +166,20 @@ object StarterTemplates {
             isTemplate = true,
             createdAt = TEMPLATE_EPOCH,
         ),
+        Workout(
+            profileId = null,
+            name = "Full-Body EMOM",
+            style = WorkoutStyle.EMOM,
+            styleConfig = WorkoutStyleConfig.Emom(repGoal = 12, rounds = 4, restBetweenRoundsSeconds = 30),
+            exercises = listOf(
+                WorkoutExercise(order = 0, name = "Kettlebell Swing"),
+                WorkoutExercise(order = 1, name = "Push-Up"),
+                WorkoutExercise(order = 2, name = "Air Squat"),
+            ),
+            notes = "Every minute on the minute: hit 12 reps of each exercise, rest what's left, 4 rounds through.",
+            isTemplate = true,
+            createdAt = TEMPLATE_EPOCH,
+        ),
     )
 
     private val TEMPLATE_EPOCH = Instant.fromEpochMilliseconds(0L)

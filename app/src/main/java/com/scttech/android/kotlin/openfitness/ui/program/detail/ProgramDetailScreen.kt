@@ -114,7 +114,7 @@ internal fun ProgramDetailScreen(
                 ) {
                     Text(program.name, style = MaterialTheme.typography.headlineSmall)
                     Text(
-                        "Goal: ${program.goalTarget.clean()} ${program.goalType.unitLabel} of ${program.exerciseName}",
+                        "Goal: ${program.goalTarget} ${program.goalType.unitLabel} of ${program.exerciseName}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -122,15 +122,21 @@ internal fun ProgramDetailScreen(
                     HorizontalDivider()
 
                     Text("Current prescription", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        program.config.repStrategyConfig.strategy.displayName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     val prescription = program.currentPrescription
                     if (prescription != null) {
                         Text(
-                            "Training max: ${prescription.trainingMax.clean()} ${program.goalType.unitLabel} " +
-                                "(from a test of ${prescription.basedOnTestResult.clean()})",
+                            "Training max: ${prescription.trainingMax} ${program.goalType.unitLabel} " +
+                                "(from a test of ${prescription.basedOnTestResult})",
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         prescription.sets.forEach { set ->
-                            Text("Set ${set.setIndex + 1}: ${set.targetValue} ${program.goalType.unitLabel}")
+                            val target = if (set.isAmrap) "${set.targetValue}+ (AMRAP)" else "${set.targetValue}"
+                            Text("Set ${set.setIndex + 1}: $target ${program.goalType.unitLabel}")
                         }
                     } else {
                         Text(
@@ -184,7 +190,5 @@ internal fun ProgramDetailScreen(
 @Composable
 private fun TestRow(test: ProgramTest, unitLabel: String, modifier: Modifier = Modifier) {
     val localDate = test.testedAt.toLocalDateTime(TimeZone.currentSystemDefault()).date
-    Text("$localDate — ${test.result.clean()} $unitLabel", modifier = modifier)
+    Text("$localDate — ${test.result} $unitLabel", modifier = modifier)
 }
-
-private fun Double.clean(): String = if (this == this.toLong().toDouble()) this.toLong().toString() else toString()

@@ -39,6 +39,9 @@ class WorkoutRepositoryImpl @Inject constructor(
         workoutDao.delete(workout.asEntity())
     }
 
+    override suspend fun nameExists(profileId: Long, name: String, excludeWorkoutId: Long): Boolean =
+        workoutDao.existsWithName(profileId, name, excludeWorkoutId)
+
     override suspend fun copyTemplateToProfile(template: Workout, profileId: Long): Long {
         val copy = template.copy(
             id = 0L,

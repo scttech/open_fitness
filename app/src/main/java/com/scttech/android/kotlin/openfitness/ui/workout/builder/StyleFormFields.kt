@@ -35,6 +35,7 @@ sealed interface StyleFormFields {
         val startReps: String,
         val stepReps: String,
         val peakReps: String,
+        val restSeconds: String,
         val exerciseId: Long? = null,
     ) : StyleFormFields
 
@@ -50,16 +51,24 @@ sealed interface StyleFormFields {
         val setCount: String,
         val repsPerSet: String,
         val deloadEverySessions: String,
+        val restSeconds: String,
         val exerciseId: Long? = null,
+    ) : StyleFormFields
+
+    data class EmomFields(
+        val repGoal: String,
+        val rounds: String,
+        val restBetweenRoundsSeconds: String,
     ) : StyleFormFields
 
     companion object {
         fun default(style: WorkoutStyle): StyleFormFields = when (style) {
             WorkoutStyle.TABATA -> TabataFields("20", "10", "8", "1", "60")
             WorkoutStyle.GREASE_THE_GROOVE -> GtgFields("", "5", "10", "30")
-            WorkoutStyle.PYRAMID -> PyramidFields("", WorkoutStyleConfig.PyramidDirection.UP_DOWN, "2", "2", "10")
+            WorkoutStyle.PYRAMID -> PyramidFields("", WorkoutStyleConfig.PyramidDirection.UP_DOWN, "2", "2", "10", "60")
             WorkoutStyle.DENSITY -> DensityFields("15", "")
-            WorkoutStyle.STEP_LOADING -> StepLoadingFields("", "20", "5", "5", "5", "")
+            WorkoutStyle.STEP_LOADING -> StepLoadingFields("", "20", "5", "5", "5", "", "60")
+            WorkoutStyle.EMOM -> EmomFields("10", "3", "60")
         }
 
         fun from(config: WorkoutStyleConfig, exercises: List<WorkoutExercise>): StyleFormFields = when (config) {
@@ -85,6 +94,7 @@ sealed interface StyleFormFields {
                 startReps = config.startReps.toString(),
                 stepReps = config.stepReps.toString(),
                 peakReps = config.peakReps.toString(),
+                restSeconds = config.restSeconds.toString(),
             )
             is WorkoutStyleConfig.Density -> DensityFields(
                 durationMinutes = config.durationMinutes.toString(),
@@ -98,6 +108,12 @@ sealed interface StyleFormFields {
                 setCount = config.setCount.toString(),
                 repsPerSet = config.repsPerSet.toString(),
                 deloadEverySessions = config.deloadEverySessions?.toString().orEmpty(),
+                restSeconds = config.restSeconds.toString(),
+            )
+            is WorkoutStyleConfig.Emom -> EmomFields(
+                repGoal = config.repGoal.toString(),
+                rounds = config.rounds.toString(),
+                restBetweenRoundsSeconds = config.restBetweenRoundsSeconds.toString(),
             )
         }
     }
@@ -123,6 +139,7 @@ fun StyleFormFields.toStyleConfig(): WorkoutStyleConfig = when (this) {
         startReps = startReps.toIntOrNull() ?: 2,
         stepReps = stepReps.toIntOrNull() ?: 2,
         peakReps = peakReps.toIntOrNull() ?: 10,
+        restSeconds = restSeconds.toIntOrNull() ?: 60,
     )
     is StyleFormFields.DensityFields -> WorkoutStyleConfig.Density(
         durationMinutes = durationMinutes.toIntOrNull() ?: 15,
@@ -134,6 +151,12 @@ fun StyleFormFields.toStyleConfig(): WorkoutStyleConfig = when (this) {
         setCount = setCount.toIntOrNull() ?: 5,
         repsPerSet = repsPerSet.toIntOrNull() ?: 5,
         deloadEverySessions = deloadEverySessions.toIntOrNull(),
+        restSeconds = restSeconds.toIntOrNull() ?: 60,
+    )
+    is StyleFormFields.EmomFields -> WorkoutStyleConfig.Emom(
+        repGoal = repGoal.toIntOrNull() ?: 10,
+        rounds = rounds.toIntOrNull() ?: 3,
+        restBetweenRoundsSeconds = restBetweenRoundsSeconds.toIntOrNull() ?: 60,
     )
 }
 
@@ -152,9 +175,16 @@ fun StyleFormFields.singleExerciseName(): String? = when (this) {
     else -> null
 }
 
-fun StyleFormFields.toExercises(circuitExerciseNames: List<String>): List<WorkoutExercise> = when (this) {
-    is StyleFormFields.TabataFields -> circuitExerciseNames.mapIndexed { i, name -> WorkoutExercise(order = i, name = name) }
-    is StyleFormFields.DensityFields -> circuitExerciseNames.mapIndexed { i, name -> WorkoutExercise(order = i, name = name) }
+fun StyleFormFields.toExercises(circuitExercises: List<CircuitExerciseField>): List<WorkoutExercise> = when (this) {
+    is StyleFormFields.TabataFields -> circuitExercises.mapIndexed { i, ex ->
+        WorkoutExercise(order = i, name = ex.name, exerciseId = ex.exerciseId)
+    }
+    is StyleFormFields.DensityFields -> circuitExercises.mapIndexed { i, ex ->
+        WorkoutExercise(order = i, name = ex.name, exerciseId = ex.exerciseId)
+    }
+    is StyleFormFields.EmomFields -> circuitExercises.mapIndexed { i, ex ->
+        WorkoutExercise(order = i, name = ex.name, exerciseId = ex.exerciseId)
+    }
     is StyleFormFields.GtgFields -> listOf(
         WorkoutExercise(order = 0, name = exerciseName, exerciseId = exerciseId, targetReps = repsPerSet.toIntOrNull()),
     )

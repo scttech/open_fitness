@@ -26,6 +26,11 @@ interface WorkoutDao {
     @Query("SELECT COUNT(*) FROM workouts WHERE isTemplate = 1")
     suspend fun templateCount(): Int
 
+    @Query(
+        "SELECT EXISTS(SELECT 1 FROM workouts WHERE profileId = :profileId AND LOWER(name) = LOWER(:name) AND id != :excludeId)",
+    )
+    suspend fun existsWithName(profileId: Long, name: String, excludeId: Long): Boolean
+
     @Insert
     suspend fun insert(workout: WorkoutEntity): Long
 

@@ -19,6 +19,7 @@ enum class ExerciseEquipment(val displayName: String) {
     BARBELL("Barbell"),
     DUMBBELL("Dumbbell"),
     KETTLEBELL("Kettlebell"),
+    MACE("Steel Mace"),
     MACHINE("Machine"),
     BAND("Band"),
     CARDIO_MACHINE("Cardio Machine"),

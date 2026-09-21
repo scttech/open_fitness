@@ -46,7 +46,7 @@ class ProgramRepositoryImpl @Inject constructor(
         programDao.delete(program.asEntity())
     }
 
-    override suspend fun recordTest(programId: Long, result: Double, notes: String): Long =
+    override suspend fun recordTest(programId: Long, result: Int, notes: String): Long =
         database.withTransaction {
             val program = programDao.getProgram(programId)?.asDomainModel()
                 ?: error("Program $programId not found")

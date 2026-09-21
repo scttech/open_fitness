@@ -59,4 +59,12 @@ class WorkoutStyleConfigTest {
         )
         assertEquals(50, config.dailyTargetReps)
     }
+
+    @Test
+    fun `emom default config uses sane defaults`() {
+        val config = WorkoutStyleConfig.Emom()
+        assertEquals(10, config.repGoal)
+        assertEquals(3, config.rounds)
+        assertEquals(60, config.restBetweenRoundsSeconds)
+    }
 }

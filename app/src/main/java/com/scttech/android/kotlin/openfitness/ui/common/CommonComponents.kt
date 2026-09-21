@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.common
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,6 +58,54 @@ fun ConfirmDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
+}
+
+/** Explains how much rest to take between sets, by training goal. */
+@Composable
+fun RestGuidanceDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("How much rest do I need?") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                RestGuidanceRow("Muscular Endurance", "30–60 seconds between sets")
+                RestGuidanceRow("Hypertrophy", "30–90 seconds between sets")
+                RestGuidanceRow("Strength & Power", "At least 2 minutes between sets")
+                RestGuidanceRow("1-Rep Max Testing", "Up to 5 minutes for full recovery")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Got it") }
+        },
+    )
+}
+
+@Composable
+private fun RestGuidanceRow(label: String, detail: String) {
+    Column {
+        Text(label, style = MaterialTheme.typography.titleSmall)
+        Text(detail, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Explains how many sets and reps to do, by training goal. */
+@Composable
+fun SetsRepsGuidanceDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("How many sets and reps do I need?") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                RestGuidanceRow("Muscular Endurance", "2–3 sets of 15+ reps")
+                RestGuidanceRow("Hypertrophy", "3–4 sets of 8–12 reps")
+                RestGuidanceRow("Strength & Power", "3–5 sets of 3–6 reps")
+                RestGuidanceRow("1-Rep Max Testing", "Single all-out attempt after a full warm-up")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Got it") }
         },
     )
 }

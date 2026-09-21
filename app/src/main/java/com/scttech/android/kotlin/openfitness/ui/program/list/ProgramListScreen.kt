@@ -107,7 +107,7 @@ private fun ProgramRow(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(program.name, style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Goal: ${program.goalTarget.toCleanString()} ${program.goalType.unitLabel} · ${program.exerciseName}",
+                        "Goal: ${program.goalTarget} ${program.goalType.unitLabel} · ${program.exerciseName}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -118,10 +118,10 @@ private fun ProgramRow(
             }
             val lastResult = program.lastTestResult
             if (lastResult != null) {
-                val progress = (lastResult / program.goalTarget).toFloat().coerceIn(0f, 1f)
+                val progress = (lastResult.toFloat() / program.goalTarget).coerceIn(0f, 1f)
                 LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
                 Text(
-                    "Last test: ${lastResult.toCleanString()} ${program.goalType.unitLabel}",
+                    "Last test: $lastResult ${program.goalType.unitLabel}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -135,6 +135,4 @@ private fun ProgramRow(
         }
     }
 }
-
-private fun Double.toCleanString(): String = if (this == this.toLong().toDouble()) this.toLong().toString() else toString()
 

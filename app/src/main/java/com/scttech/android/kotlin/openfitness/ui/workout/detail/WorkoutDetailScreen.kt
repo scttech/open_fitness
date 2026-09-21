@@ -195,4 +195,6 @@ private fun styleSummary(config: WorkoutStyleConfig): String = when (config) {
     is WorkoutStyleConfig.StepLoading ->
         "${config.setCount} sets × ${config.repsPerSet} reps, starting ${config.startWeightKg}kg +${config.stepWeightKg}kg/set" +
             (config.deloadEverySessions?.let { ", deload every $it sessions" } ?: "")
+    is WorkoutStyleConfig.Emom ->
+        "60s per exercise × ${config.rounds} rounds, goal ${config.repGoal} reps, ${config.restBetweenRoundsSeconds}s rest between rounds"
 }

@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,21 +31,29 @@ import kotlinx.datetime.toLocalDateTime
 
 @Composable
 internal fun HistoryRoute(
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    HistoryScreen(uiState = uiState, modifier = modifier)
+    HistoryScreen(uiState = uiState, modifier = modifier, onBackClick = onBackClick)
 }
 
 @Composable
 internal fun HistoryScreen(
     uiState: HistoryUiState,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("History") }) },
+        topBar = { TopAppBar(title = { Text("History") },
+            navigationIcon = {
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            },
+            ) },
     ) { padding ->
         when (uiState) {
             HistoryUiState.Loading -> FullScreenLoading(Modifier.padding(padding))
@@ -88,4 +100,5 @@ private fun resultSummary(result: SessionResult): String = when (result) {
     is SessionResult.PyramidResult -> "${result.setsLogged.size} sets · ${result.setsLogged.sumOf { it.reps ?: 0 }} total reps"
     is SessionResult.DensityResult -> "${result.roundsCompleted} rounds in ${result.elapsedSeconds / 60}m ${result.elapsedSeconds % 60}s"
     is SessionResult.StepLoadingResult -> "${result.setsLogged.size} sets · top set ${result.setsLogged.maxOfOrNull { it.weightKg ?: 0.0 } ?: 0.0}kg"
+    is SessionResult.EmomResult -> "${result.roundsCompleted} ${if (result.roundsCompleted == 1) "round" else "rounds"} completed"
 }

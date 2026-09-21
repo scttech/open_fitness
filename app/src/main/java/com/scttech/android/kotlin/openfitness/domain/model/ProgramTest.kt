@@ -8,6 +8,6 @@ data class ProgramTest(
     val programId: Long,
     val profileId: Long,
     val testedAt: Instant,
-    val result: Double,
+    val result: Int,
     val notes: String = "",
 )

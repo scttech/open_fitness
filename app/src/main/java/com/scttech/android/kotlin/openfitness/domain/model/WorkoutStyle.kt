@@ -22,4 +22,8 @@ enum class WorkoutStyle(val displayName: String, val shortDescription: String) {
         displayName = "Step-Loading",
         shortDescription = "Load increases in steps across sets or successive sessions.",
     ),
+    EMOM(
+        displayName = "EMOM",
+        shortDescription = "Every Minute on the Minute: cycle through your exercises in 60-second windows.",
+    ),
 }

@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,20 +43,28 @@ import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
 @Composable
 internal fun StatsRoute(
     modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
     viewModel: StatsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    StatsScreen(uiState = uiState, modifier = modifier)
+    StatsScreen(uiState = uiState, modifier = modifier, onBackClick = onBackClick)
 }
 
 @Composable
 internal fun StatsScreen(
     uiState: StatsUiState,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("Stats") }) },
+        topBar = { TopAppBar(title = { Text("Stats") },
+            navigationIcon = {
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            },
+            ) },
     ) { padding ->
         when (uiState) {
             StatsUiState.Loading -> FullScreenLoading(Modifier.padding(padding))

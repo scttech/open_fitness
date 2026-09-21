@@ -89,7 +89,7 @@ internal fun ProgramTestCheckInScreen(
                         value = uiState.resultInput,
                         onValueChange = onResultChange,
                         label = { Text("Result (${uiState.program.goalType.unitLabel})") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )

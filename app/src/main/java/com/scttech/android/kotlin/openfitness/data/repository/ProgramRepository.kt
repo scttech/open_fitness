@@ -12,5 +12,5 @@ interface ProgramRepository {
     suspend fun deleteProgram(program: Program)
 
     /** Records a test, recalculates the prescription from it, and saves both atomically. */
-    suspend fun recordTest(programId: Long, result: Double, notes: String = ""): Long
+    suspend fun recordTest(programId: Long, result: Int, notes: String = ""): Long
 }

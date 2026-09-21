@@ -47,4 +47,9 @@ sealed interface SessionResult {
     data class StepLoadingResult(
         val setsLogged: List<PerformedSet>,
     ) : SessionResult
+
+    @Serializable
+    data class EmomResult(
+        val roundsCompleted: Int,
+    ) : SessionResult
 }

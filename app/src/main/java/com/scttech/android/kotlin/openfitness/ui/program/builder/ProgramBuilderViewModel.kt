@@ -10,6 +10,8 @@ import com.scttech.android.kotlin.openfitness.domain.model.Exercise
 import com.scttech.android.kotlin.openfitness.domain.model.Program
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramConfig
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramGoalType
+import com.scttech.android.kotlin.openfitness.domain.model.RepStrategy
+import com.scttech.android.kotlin.openfitness.domain.model.RepStrategyConfig
 import com.scttech.android.kotlin.openfitness.ui.navigation.ProgramBuilderRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +45,7 @@ class ProgramBuilderViewModel @Inject constructor(
                 val program = programRepository.observeProgram(route.programId).first()
                 if (program != null) {
                     originalProgram = program
+                    val repStrategyConfig = program.config.repStrategyConfig
                     _uiState.value = ProgramBuilderUiState.Loaded(
                         programId = program.id,
                         name = program.name,
@@ -50,8 +53,12 @@ class ProgramBuilderViewModel @Inject constructor(
                         exerciseName = program.exerciseName,
                         goalType = program.goalType,
                         goalTarget = program.goalTarget.toString(),
+                        repStrategy = repStrategyConfig.strategy,
+                        customSetTargets = (repStrategyConfig as? RepStrategyConfig.CustomManual)
+                            ?.setTargets?.map { it.toString() }.orEmpty(),
                         sessionsPerWeek = program.config.sessionsPerWeek.toString(),
                         retestIntervalDays = program.config.retestIntervalDays.toString(),
+                        restSeconds = program.config.restSeconds.toString(),
                     )
                     return@launch
                 }
@@ -63,8 +70,10 @@ class ProgramBuilderViewModel @Inject constructor(
                 exerciseName = "",
                 goalType = ProgramGoalType.REPS,
                 goalTarget = "100",
+                repStrategy = RepStrategy.PERCENTAGE_LADDER,
                 sessionsPerWeek = ProgramConfig().sessionsPerWeek.toString(),
                 retestIntervalDays = ProgramConfig().retestIntervalDays.toString(),
+                restSeconds = ProgramConfig().restSeconds.toString(),
             )
         }
     }
@@ -74,6 +83,28 @@ class ProgramBuilderViewModel @Inject constructor(
     fun updateGoalTarget(value: String) = updateLoaded { copy(goalTarget = value) }
     fun updateSessionsPerWeek(value: String) = updateLoaded { copy(sessionsPerWeek = value) }
     fun updateRetestIntervalDays(value: String) = updateLoaded { copy(retestIntervalDays = value) }
+    fun updateRestSeconds(value: String) = updateLoaded { copy(restSeconds = value) }
+
+    fun updateRepStrategy(strategy: RepStrategy) = updateLoaded {
+        copy(
+            repStrategy = strategy,
+            customSetTargets = if (strategy == RepStrategy.CUSTOM_MANUAL && customSetTargets.isEmpty()) {
+                listOf("")
+            } else {
+                customSetTargets
+            },
+        )
+    }
+
+    fun updateCustomSetTarget(index: Int, value: String) = updateLoaded {
+        copy(customSetTargets = customSetTargets.toMutableList().also { it[index] = value })
+    }
+
+    fun addCustomSet() = updateLoaded { copy(customSetTargets = customSetTargets + "") }
+
+    fun removeCustomSet(index: Int) = updateLoaded {
+        copy(customSetTargets = customSetTargets.toMutableList().also { it.removeAt(index) })
+    }
 
     fun pickExercise(exercise: Exercise) = updateLoaded {
         val newName = if (name.isBlank()) "${exercise.name} Goal" else name
@@ -91,18 +122,31 @@ class ProgramBuilderViewModel @Inject constructor(
         val state = _uiState.value
         if (state !is ProgramBuilderUiState.Loaded || !state.canSave) return
         viewModelScope.launch {
-            val config = ProgramConfig(
+            val existing = originalProgram
+            val repStrategyConfig = when (state.repStrategy) {
+                RepStrategy.CUSTOM_MANUAL -> RepStrategyConfig.CustomManual(
+                    setTargets = state.customSetTargets.mapNotNull { it.toIntOrNull() }.filter { it > 0 },
+                )
+                else -> {
+                    // Preserve an unchanged strategy's own parameters rather than resetting them to defaults.
+                    val unchanged = existing?.config?.repStrategyConfig
+                        ?.takeIf { it.strategy == state.repStrategy }
+                    unchanged ?: RepStrategyConfig.default(state.repStrategy)
+                }
+            }
+            val config = (existing?.config ?: ProgramConfig()).copy(
+                repStrategyConfig = repStrategyConfig,
                 sessionsPerWeek = state.sessionsPerWeek.toIntOrNull() ?: 3,
                 retestIntervalDays = state.retestIntervalDays.toIntOrNull() ?: 14,
+                restSeconds = state.restSeconds.toIntOrNull()?.coerceAtLeast(0) ?: 90,
             )
-            val existing = originalProgram
             val program = if (existing != null) {
                 existing.copy(
                     name = state.name.trim(),
                     exerciseId = state.exerciseId,
                     exerciseName = state.exerciseName,
                     goalType = state.goalType,
-                    goalTarget = state.goalTarget.toDoubleOrNull() ?: 100.0,
+                    goalTarget = state.goalTarget.toIntOrNull() ?: 100,
                     config = config,
                 )
             } else {
@@ -112,7 +156,7 @@ class ProgramBuilderViewModel @Inject constructor(
                     exerciseId = state.exerciseId,
                     exerciseName = state.exerciseName,
                     goalType = state.goalType,
-                    goalTarget = state.goalTarget.toDoubleOrNull() ?: 100.0,
+                    goalTarget = state.goalTarget.toIntOrNull() ?: 100,
                     config = config,
                     createdAt = Clock.System.now(),
                 )

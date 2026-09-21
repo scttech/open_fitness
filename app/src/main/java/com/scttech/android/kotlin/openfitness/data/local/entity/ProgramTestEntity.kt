@@ -30,7 +30,7 @@ data class ProgramTestEntity(
     val programId: Long,
     val profileId: Long,
     val testedAtEpochMillis: Long,
-    val result: Double,
+    val result: Int,
     val notes: String,
 )
 

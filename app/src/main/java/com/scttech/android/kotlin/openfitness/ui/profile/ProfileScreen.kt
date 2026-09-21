@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.profile
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -39,9 +39,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.scttech.android.kotlin.openfitness.R
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.ui.common.ConfirmDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
@@ -101,22 +103,16 @@ internal fun ProfileScreen(
             is ProfileUiState.Loaded -> {
                 Column(modifier = Modifier.fillMaxSize().padding(padding)) {
                     Spacer(Modifier.height(24.dp))
-                    Icon(
-                        imageVector = Icons.Filled.FitnessCenter,
-                        contentDescription = null,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).size(48.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = "Open Fitness",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
+                    Image(
+                        painter = painterResource(R.drawable.img_open_fitness_logo),
+                        contentDescription = "Open Fitness",
+                        modifier = Modifier.align(Alignment.CenterHorizontally).size(96.dp),
                     )
                     Text(
                         text = "Who's training today?",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 4.dp, bottom = 16.dp),
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp, bottom = 16.dp),
                     )
                     if (uiState.profiles.isEmpty()) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

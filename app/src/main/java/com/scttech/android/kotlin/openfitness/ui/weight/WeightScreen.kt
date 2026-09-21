@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -51,11 +52,13 @@ import com.scttech.android.kotlin.openfitness.ui.common.TextInputDialog
 @Composable
 internal fun WeightRoute(
     modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
     viewModel: WeightViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     WeightScreen(
         uiState = uiState,
+        onBackClick = onBackClick,
         onAddEntry = viewModel::addEntry,
         onDeleteEntry = viewModel::deleteEntry,
         modifier = modifier,
@@ -65,6 +68,7 @@ internal fun WeightRoute(
 @Composable
 internal fun WeightScreen(
     uiState: WeightUiState,
+    onBackClick: () -> Unit,
     onAddEntry: (Double) -> Unit,
     onDeleteEntry: (WeightEntry) -> Unit,
     modifier: Modifier = Modifier,
@@ -73,7 +77,11 @@ internal fun WeightScreen(
 
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("Weight") }) },
+        topBar = { TopAppBar(title = { Text("Weight") },                navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+        },) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
                 Icon(Icons.Filled.Add, contentDescription = "Log weight")

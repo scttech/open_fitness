@@ -45,7 +45,8 @@ class WorkoutBuilderViewModel @Inject constructor(
                         style = workout.style,
                         name = workout.name,
                         notes = workout.notes,
-                        circuitExerciseNames = workout.exercises.sortedBy { it.order }.map { it.name },
+                        circuitExercises = workout.exercises.sortedBy { it.order }
+                            .map { CircuitExerciseField(name = it.name, exerciseId = it.exerciseId) },
                         fields = StyleFormFields.from(workout.styleConfig, workout.exercises),
                     )
                     return@launch
@@ -58,24 +59,27 @@ class WorkoutBuilderViewModel @Inject constructor(
                 style = style,
                 name = "",
                 notes = "",
-                circuitExerciseNames = listOf(""),
+                circuitExercises = listOf(CircuitExerciseField()),
                 fields = StyleFormFields.default(style),
             )
         }
     }
 
-    fun updateName(name: String) = updateLoaded { copy(name = name) }
+    fun updateName(name: String) = updateLoaded { copy(name = name, nameError = null) }
     fun updateNotes(notes: String) = updateLoaded { copy(notes = notes) }
     fun updateFields(fields: StyleFormFields) = updateLoaded { copy(fields = fields) }
 
-    fun updateCircuitExerciseName(index: Int, name: String) = updateLoaded {
-        copy(circuitExerciseNames = circuitExerciseNames.toMutableList().also { it[index] = name })
+    fun pickCircuitExercise(index: Int, name: String, exerciseId: Long?) = updateLoaded {
+        copy(
+            circuitExercises = circuitExercises.toMutableList()
+                .also { it[index] = CircuitExerciseField(name = name, exerciseId = exerciseId) },
+        )
     }
 
-    fun addCircuitExercise() = updateLoaded { copy(circuitExerciseNames = circuitExerciseNames + "") }
+    fun addCircuitExercise() = updateLoaded { copy(circuitExercises = circuitExercises + CircuitExerciseField()) }
 
     fun removeCircuitExercise(index: Int) = updateLoaded {
-        copy(circuitExerciseNames = circuitExerciseNames.toMutableList().also { it.removeAt(index) })
+        copy(circuitExercises = circuitExercises.toMutableList().also { it.removeAt(index) })
     }
 
     private inline fun updateLoaded(block: WorkoutBuilderUiState.Loaded.() -> WorkoutBuilderUiState.Loaded) {
@@ -90,11 +94,18 @@ class WorkoutBuilderViewModel @Inject constructor(
         if (state !is WorkoutBuilderUiState.Loaded || !state.canSave) return
         viewModelScope.launch {
             val profileId = profileRepository.currentProfileId.filterNotNull().first()
-            val exercises = state.fields.toExercises(state.circuitExerciseNames.filter { it.isNotBlank() })
+            val trimmedName = state.name.trim()
+            if (workoutRepository.nameExists(profileId, trimmedName, state.workoutId)) {
+                _uiState.update {
+                    (it as WorkoutBuilderUiState.Loaded).copy(nameError = "A workout named \"$trimmedName\" already exists.")
+                }
+                return@launch
+            }
+            val exercises = state.fields.toExercises(state.circuitExercises.filter { it.name.isNotBlank() })
             val workout = Workout(
                 id = state.workoutId,
                 profileId = profileId,
-                name = state.name.trim(),
+                name = trimmedName,
                 style = state.style,
                 styleConfig = state.fields.toStyleConfig(),
                 exercises = exercises,

@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.scttech.android.kotlin.openfitness.ui.profile.ProfileUiState
 import com.scttech.android.kotlin.openfitness.ui.exercise.builder.ExerciseBuilderRoute as ExerciseBuilderRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.exercise.detail.ExerciseDetailRoute as ExerciseDetailRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.exercise.list.ExerciseListRoute as ExerciseListRouteScreen
@@ -30,7 +29,7 @@ import com.scttech.android.kotlin.openfitness.ui.workout.templates.TemplateBrows
 fun OpenFitnessNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-) {
+    ) {
     NavHost(
         navController = navController,
         startDestination = ProfilePickerRoute,
@@ -64,9 +63,15 @@ fun OpenFitnessNavHost(
             )
         }
 
-        composable<HistoryRoute> { HistoryRouteScreen() }
-        composable<WeightRoute> { WeightRouteScreen() }
-        composable<StatsRoute> { StatsRouteScreen() }
+        composable<HistoryRoute> { HistoryRouteScreen(
+            onBackClick = { navController.popBackStack() },
+        ) }
+        composable<WeightRoute> { WeightRouteScreen(
+            onBackClick = { navController.popBackStack() },
+        ) }
+        composable<StatsRoute> { StatsRouteScreen(
+            onBackClick = { navController.popBackStack() },
+        ) }
 
         composable<TemplateBrowserRoute> {
             TemplateBrowserRouteScreen(
@@ -99,6 +104,7 @@ fun OpenFitnessNavHost(
             ActiveSessionRouteScreen(
                 onBackClick = { navController.popBackStack() },
                 onFinished = { navController.popBackStack() },
+                onExerciseClick = { id -> navController.navigate(ExerciseDetailRoute(id)) },
             )
         }
 
@@ -106,6 +112,7 @@ fun OpenFitnessNavHost(
             ExerciseListRouteScreen(
                 onExerciseClick = { id -> navController.navigate(ExerciseDetailRoute(id)) },
                 onNewExercise = { navController.navigate(ExerciseBuilderRoute()) },
+                onBackClick = { navController.popBackStack() },
             )
         }
 
@@ -159,6 +166,7 @@ fun OpenFitnessNavHost(
             ActiveProgramSessionRouteScreen(
                 onBackClick = { navController.popBackStack() },
                 onFinished = { navController.popBackStack() },
+                onExerciseClick = { id -> navController.navigate(ExerciseDetailRoute(id)) },
             )
         }
 
