@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.settings
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
@@ -55,10 +57,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
+import com.scttech.android.kotlin.openfitness.ui.common.AvatarPickerDialog
 import com.scttech.android.kotlin.openfitness.ui.common.ConfirmDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.ProfileAvatar
 import com.scttech.android.kotlin.openfitness.ui.common.TextInputDialog
-import com.scttech.android.kotlin.openfitness.ui.theme.ProfileAccentColors
 import com.scttech.android.kotlin.openfitness.ui.theme.TimerPaletteColors
 import kotlinx.coroutines.launch
 
@@ -94,6 +97,9 @@ internal fun SettingsRoute(
         onTimerWorkColorChange = viewModel::setTimerWorkColor,
         onTimerRestColorChange = viewModel::setTimerRestColor,
         onThemeModeChange = viewModel::setThemeMode,
+        onUpdateAvatarFromUri = viewModel::updateAvatarFromUri,
+        onUpdateAvatarPreset = viewModel::updateAvatarPreset,
+        onCreateAvatarCaptureUri = viewModel::createAvatarCaptureUri,
         modifier = modifier,
     )
 }
@@ -111,10 +117,14 @@ internal fun SettingsScreen(
     onTimerWorkColorChange: (Color) -> Unit,
     onTimerRestColorChange: (Color) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
+    onUpdateAvatarFromUri: (Profile, Uri) -> Unit,
+    onUpdateAvatarPreset: (Profile, String) -> Unit,
+    onCreateAvatarCaptureUri: () -> Uri,
     modifier: Modifier = Modifier,
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showAvatarPicker by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -132,16 +142,12 @@ internal fun SettingsScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .background(
-                                            color = ProfileAccentColors[uiState.currentProfile.colorIndex % ProfileAccentColors.size],
-                                            shape = CircleShape,
-                                        ),
-                                )
+                                ProfileAvatar(profile = uiState.currentProfile, size = 40.dp)
                                 Spacer(Modifier.width(16.dp))
                                 Text(uiState.currentProfile.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                                IconButton(onClick = { showAvatarPicker = true }) {
+                                    Icon(Icons.Filled.CameraAlt, contentDescription = "Change avatar")
+                                }
                                 IconButton(onClick = { showRenameDialog = true }) {
                                     Icon(Icons.Filled.Edit, contentDescription = "Rename profile")
                                 }
@@ -247,6 +253,14 @@ internal fun SettingsScreen(
                     onDeleteProfile(uiState.currentProfile)
                 },
                 onDismiss = { showDeleteDialog = false },
+            )
+        }
+        if (showAvatarPicker) {
+            AvatarPickerDialog(
+                onPresetPicked = { onUpdateAvatarPreset(uiState.currentProfile, it) },
+                onImagePicked = { onUpdateAvatarFromUri(uiState.currentProfile, it) },
+                onCreateCaptureUri = onCreateAvatarCaptureUri,
+                onDismiss = { showAvatarPicker = false },
             )
         }
     }

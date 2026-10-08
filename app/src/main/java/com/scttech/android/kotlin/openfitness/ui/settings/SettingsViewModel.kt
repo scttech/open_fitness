@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.settings
 
+import android.net.Uri
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
@@ -90,4 +91,14 @@ class SettingsViewModel @Inject constructor(
             profileRepository.setThemeMode(mode)
         }
     }
+
+    fun updateAvatarFromUri(profile: Profile, uri: Uri) {
+        viewModelScope.launch { profileRepository.updateAvatarFromUri(profile, uri) }
+    }
+
+    fun updateAvatarPreset(profile: Profile, presetKey: String) {
+        viewModelScope.launch { profileRepository.updateAvatarPreset(profile, presetKey) }
+    }
+
+    fun createAvatarCaptureUri(): Uri = profileRepository.createAvatarCaptureUri()
 }

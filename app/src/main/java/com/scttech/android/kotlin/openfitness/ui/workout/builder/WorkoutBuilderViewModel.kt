@@ -47,6 +47,14 @@ class WorkoutBuilderViewModel @Inject constructor(
                         notes = workout.notes,
                         circuitExercises = workout.exercises.sortedBy { it.order }
                             .map { CircuitExerciseField(name = it.name, exerciseId = it.exerciseId) },
+                        followAlongSteps = workout.exercises.sortedBy { it.order }.map {
+                            FollowAlongStepField(
+                                isRest = it.isRest,
+                                name = it.name,
+                                exerciseId = it.exerciseId,
+                                seconds = (it.targetDurationSeconds ?: 30).toString(),
+                            )
+                        },
                         fields = StyleFormFields.from(workout.styleConfig, workout.exercises),
                     )
                     return@launch
@@ -60,6 +68,7 @@ class WorkoutBuilderViewModel @Inject constructor(
                 name = "",
                 notes = "",
                 circuitExercises = listOf(CircuitExerciseField()),
+                followAlongSteps = listOf(FollowAlongStepField(isRest = false)),
                 fields = StyleFormFields.default(style),
             )
         }
@@ -82,6 +91,30 @@ class WorkoutBuilderViewModel @Inject constructor(
         copy(circuitExercises = circuitExercises.toMutableList().also { it.removeAt(index) })
     }
 
+    fun addFollowAlongExercise() = updateLoaded {
+        copy(followAlongSteps = followAlongSteps + FollowAlongStepField(isRest = false))
+    }
+
+    fun addFollowAlongRest() = updateLoaded {
+        val defaultRest = (fields as? StyleFormFields.FollowAlongFields)?.defaultRestSeconds ?: "15"
+        copy(followAlongSteps = followAlongSteps + FollowAlongStepField(isRest = true, name = "Rest", seconds = defaultRest))
+    }
+
+    fun pickFollowAlongExercise(index: Int, name: String, exerciseId: Long?) = updateLoaded {
+        copy(
+            followAlongSteps = followAlongSteps.toMutableList()
+                .also { it[index] = it[index].copy(name = name, exerciseId = exerciseId) },
+        )
+    }
+
+    fun updateFollowAlongSeconds(index: Int, value: String) = updateLoaded {
+        copy(followAlongSteps = followAlongSteps.toMutableList().also { it[index] = it[index].copy(seconds = value) })
+    }
+
+    fun removeFollowAlongStep(index: Int) = updateLoaded {
+        copy(followAlongSteps = followAlongSteps.toMutableList().also { it.removeAt(index) })
+    }
+
     private inline fun updateLoaded(block: WorkoutBuilderUiState.Loaded.() -> WorkoutBuilderUiState.Loaded) {
         val current = _uiState.value
         if (current is WorkoutBuilderUiState.Loaded) {
@@ -101,7 +134,11 @@ class WorkoutBuilderViewModel @Inject constructor(
                 }
                 return@launch
             }
-            val exercises = state.fields.toExercises(state.circuitExercises.filter { it.name.isNotBlank() })
+            val exercises = if (state.style == WorkoutStyle.FOLLOW_ALONG) {
+                state.followAlongSteps.toWorkoutExercises()
+            } else {
+                state.fields.toExercises(state.circuitExercises.filter { it.name.isNotBlank() })
+            }
             val workout = Workout(
                 id = state.workoutId,
                 profileId = profileId,

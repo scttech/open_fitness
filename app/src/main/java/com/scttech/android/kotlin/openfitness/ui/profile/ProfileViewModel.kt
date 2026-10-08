@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.profile
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
@@ -100,4 +101,14 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateAvatarFromUri(profile: Profile, uri: Uri) {
+        viewModelScope.launch { profileRepository.updateAvatarFromUri(profile, uri) }
+    }
+
+    fun updateAvatarPreset(profile: Profile, presetKey: String) {
+        viewModelScope.launch { profileRepository.updateAvatarPreset(profile, presetKey) }
+    }
+
+    fun createAvatarCaptureUri(): Uri = profileRepository.createAvatarCaptureUri()
 }

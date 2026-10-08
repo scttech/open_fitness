@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.domain.model
 
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -70,6 +71,51 @@ sealed interface RepStrategyConfig {
     }
 }
 
+/** What a [Program]'s weekly schedule treats a given day of the week as. */
+enum class ProgramDayType { WORKOUT, REST, TEST }
+
+/**
+ * A program's weekly schedule, one [ProgramDayType] per day. A fixed 7-field shape rather than
+ * `Map<DayOfWeek, ProgramDayType>` - [DayOfWeek] has no free kotlinx.serialization support, and a
+ * fixed shape is always complete (no missing-day states to validate against).
+ */
+@Serializable
+data class ProgramWeekSchedule(
+    val monday: ProgramDayType = ProgramDayType.WORKOUT,
+    val tuesday: ProgramDayType = ProgramDayType.REST,
+    val wednesday: ProgramDayType = ProgramDayType.WORKOUT,
+    val thursday: ProgramDayType = ProgramDayType.REST,
+    val friday: ProgramDayType = ProgramDayType.WORKOUT,
+    val saturday: ProgramDayType = ProgramDayType.REST,
+    val sunday: ProgramDayType = ProgramDayType.REST,
+) {
+    operator fun get(dayOfWeek: DayOfWeek): ProgramDayType = when (dayOfWeek) {
+        DayOfWeek.MONDAY -> monday
+        DayOfWeek.TUESDAY -> tuesday
+        DayOfWeek.WEDNESDAY -> wednesday
+        DayOfWeek.THURSDAY -> thursday
+        DayOfWeek.FRIDAY -> friday
+        DayOfWeek.SATURDAY -> saturday
+        DayOfWeek.SUNDAY -> sunday
+    }
+
+    fun with(dayOfWeek: DayOfWeek, type: ProgramDayType): ProgramWeekSchedule = when (dayOfWeek) {
+        DayOfWeek.MONDAY -> copy(monday = type)
+        DayOfWeek.TUESDAY -> copy(tuesday = type)
+        DayOfWeek.WEDNESDAY -> copy(wednesday = type)
+        DayOfWeek.THURSDAY -> copy(thursday = type)
+        DayOfWeek.FRIDAY -> copy(friday = type)
+        DayOfWeek.SATURDAY -> copy(saturday = type)
+        DayOfWeek.SUNDAY -> copy(sunday = type)
+    }
+
+    /** How many days this schedule treats as [ProgramDayType.WORKOUT]. */
+    val workoutDayCount: Int get() = DayOfWeek.entries.count { this[it] == ProgramDayType.WORKOUT }
+
+    /** The single day treated as [ProgramDayType.TEST], if any - at most one is ever set. */
+    val testDay: DayOfWeek? get() = DayOfWeek.entries.firstOrNull { this[it] == ProgramDayType.TEST }
+}
+
 /**
  * User-adjustable parameters for how a test result turns into a prescription. See
  * [com.scttech.android.kotlin.openfitness.domain.program.ProgramProgression].
@@ -78,8 +124,9 @@ sealed interface RepStrategyConfig {
 data class ProgramConfig(
     val repStrategyConfig: RepStrategyConfig = RepStrategyConfig.PercentageLadder(),
     val trainingMaxFactor: Double = 0.9,
-    val sessionsPerWeek: Int = 3,
-    val retestIntervalDays: Int = 7,
+    val weekSchedule: ProgramWeekSchedule = ProgramWeekSchedule(),
+    /** How often the [weekSchedule]'s test day recurs, e.g. 1 = every week, 2 = every other week. */
+    val retestEveryWeeks: Int = 1,
     /** Rest between sets during a session, counted down by a skippable timer. 0 disables it. */
     val restSeconds: Int = 90,
 )

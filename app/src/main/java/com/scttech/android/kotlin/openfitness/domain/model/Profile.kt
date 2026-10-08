@@ -13,4 +13,8 @@ data class Profile(
     /** Null means "use the default" - see [com.scttech.android.kotlin.openfitness.ui.theme.DefaultTimerWorkColor]. */
     val timerWorkColorArgb: Int? = null,
     val timerRestColorArgb: Int? = null,
+    /** A bundled preset avatar's key (see `ui.theme.AvatarPresets`). Mutually exclusive with [avatarFilePath]. */
+    val avatarPresetKey: String? = null,
+    /** Absolute path to a user-supplied avatar photo on disk. Mutually exclusive with [avatarPresetKey]. */
+    val avatarFilePath: String? = null,
 )

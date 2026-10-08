@@ -101,4 +101,5 @@ private fun resultSummary(result: SessionResult): String = when (result) {
     is SessionResult.DensityResult -> "${result.roundsCompleted} rounds in ${result.elapsedSeconds / 60}m ${result.elapsedSeconds % 60}s"
     is SessionResult.StepLoadingResult -> "${result.setsLogged.size} sets · top set ${result.setsLogged.maxOfOrNull { it.weightKg ?: 0.0 } ?: 0.0}kg"
     is SessionResult.EmomResult -> "${result.roundsCompleted} ${if (result.roundsCompleted == 1) "round" else "rounds"} completed"
+    is SessionResult.FollowAlongResult -> "${result.exercisesCompleted} ${if (result.exercisesCompleted == 1) "exercise" else "exercises"} completed"
 }

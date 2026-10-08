@@ -52,9 +52,16 @@ class WorkoutRepositoryImpl @Inject constructor(
         return workoutDao.insert(copy.asEntity())
     }
 
+    /**
+     * Inserts any starter template not already present by name, rather than gating on the table
+     * being totally empty - so templates added in a later app update still reach installs that
+     * were already seeded, instead of silently never appearing.
+     */
     override suspend fun seedTemplatesIfNeeded() {
-        if (workoutDao.templateCount() == 0) {
-            workoutDao.insertAll(StarterTemplates.all().map { it.asEntity() })
+        val existingNames = workoutDao.templateNames().toSet()
+        val missing = StarterTemplates.all().filter { it.name !in existingNames }
+        if (missing.isNotEmpty()) {
+            workoutDao.insertAll(missing.map { it.asEntity() })
         }
     }
 }

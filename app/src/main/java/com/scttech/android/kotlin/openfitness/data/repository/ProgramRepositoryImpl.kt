@@ -9,10 +9,10 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.asEntity
 import com.scttech.android.kotlin.openfitness.domain.model.Program
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramTest
 import com.scttech.android.kotlin.openfitness.domain.program.ProgramProgression
+import com.scttech.android.kotlin.openfitness.domain.program.ProgramRetestPolicy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
-import kotlin.time.Duration.Companion.days
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,7 +61,7 @@ class ProgramRepositoryImpl @Inject constructor(
                     currentPrescription = prescription,
                     lastTestResult = result,
                     lastTestedAt = now,
-                    nextTestDueAt = now + program.config.retestIntervalDays.days,
+                    nextTestDueAt = ProgramRetestPolicy.computeNextTestDueAt(program.config, from = now),
                 ).asEntity(),
             )
             testId

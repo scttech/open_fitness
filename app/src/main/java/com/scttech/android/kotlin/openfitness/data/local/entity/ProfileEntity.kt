@@ -14,6 +14,8 @@ data class ProfileEntity(
     val timerSoundEnabled: Boolean = true,
     val timerWorkColorArgb: Int? = null,
     val timerRestColorArgb: Int? = null,
+    val avatarPresetKey: String? = null,
+    val avatarFilePath: String? = null,
 )
 
 fun ProfileEntity.asDomainModel() = Profile(
@@ -24,6 +26,8 @@ fun ProfileEntity.asDomainModel() = Profile(
     timerSoundEnabled = timerSoundEnabled,
     timerWorkColorArgb = timerWorkColorArgb,
     timerRestColorArgb = timerRestColorArgb,
+    avatarPresetKey = avatarPresetKey,
+    avatarFilePath = avatarFilePath,
 )
 
 fun Profile.asEntity() = ProfileEntity(
@@ -34,4 +38,6 @@ fun Profile.asEntity() = ProfileEntity(
     timerSoundEnabled = timerSoundEnabled,
     timerWorkColorArgb = timerWorkColorArgb,
     timerRestColorArgb = timerRestColorArgb,
+    avatarPresetKey = avatarPresetKey,
+    avatarFilePath = avatarFilePath,
 )

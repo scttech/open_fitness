@@ -76,6 +76,7 @@ internal fun ProgramDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showRestDayWarning by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -150,7 +151,8 @@ internal fun ProgramDetailScreen(
 
                     Text("Testing", style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Retest every ${program.config.retestIntervalDays} days" +
+                        "Retest every ${program.config.retestEveryWeeks} week(s)" +
+                            (program.config.weekSchedule.testDay?.let { " on ${it.name.lowercase().replaceFirstChar(Char::uppercase)}" } ?: "") +
                             (program.nextTestDueAt?.let { ", next due ${it.toLocalDateTime(TimeZone.currentSystemDefault()).date}" } ?: ""),
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -160,7 +162,11 @@ internal fun ProgramDetailScreen(
                         uiState.tests.forEach { test -> TestRow(test, program.goalType.unitLabel) }
                     }
 
-                    Button(onClick = { onStartSession(program.id) }, modifier = Modifier.fillMaxWidth(), enabled = prescription != null) {
+                    Button(
+                        onClick = { if (uiState.isRestDayToday) showRestDayWarning = true else onStartSession(program.id) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = prescription != null,
+                    ) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null)
                         Text("Start session")
                     }
@@ -183,6 +189,19 @@ internal fun ProgramDetailScreen(
                 onDeleteClick()
             },
             onDismiss = { showDeleteConfirm = false },
+        )
+    }
+
+    if (showRestDayWarning && uiState is ProgramDetailUiState.Success) {
+        ConfirmDialog(
+            title = "Start on a rest day?",
+            text = "Today is marked as a rest day for this program. Start a session anyway?",
+            confirmLabel = "Start anyway",
+            onConfirm = {
+                showRestDayWarning = false
+                onStartSession(uiState.program.id)
+            },
+            onDismiss = { showRestDayWarning = false },
         )
     }
 }

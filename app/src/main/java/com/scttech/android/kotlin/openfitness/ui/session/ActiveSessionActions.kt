@@ -29,6 +29,12 @@ data class EmomActions(
     val onSkip: () -> Unit,
 )
 
+/** Actions for a running [ActiveSessionUiState.FollowAlongSession]. */
+data class FollowAlongActions(
+    val onToggleRunning: () -> Unit,
+    val onSkip: () -> Unit,
+)
+
 /**
  * Every style-specific action group, mirroring [ActiveSessionUiState]'s variants one-for-one -
  * [ActiveSessionScreen] hands each session content composable only the slice it needs, instead of
@@ -39,6 +45,7 @@ data class ActiveSessionActions(
     val density: DensityActions,
     val setLogging: SetLoggingActions,
     val emom: EmomActions,
+    val followAlong: FollowAlongActions,
     /** Shared across every style's completion screen. */
     val onDone: () -> Unit,
     /** Shared across every style - opens the exercise library entry for the tapped exercise name. */

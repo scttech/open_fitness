@@ -31,7 +31,7 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.WorkoutSessionEn
         ProgramTestEntity::class,
         ProgramSessionEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

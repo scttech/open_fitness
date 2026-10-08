@@ -173,3 +173,16 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("ALTER TABLE `profiles` ADD COLUMN `timerRestColorArgb` INTEGER")
     }
 }
+
+/**
+ * Lets a profile show a custom avatar instead of the plain colored circle: either a bundled
+ * preset image (identified by key) or a user-supplied photo (stored on-disk, path recorded here).
+ * The two columns are mutually exclusive in practice, but both nullable since "no avatar set" is
+ * the common case and needs no backfill.
+ */
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `profiles` ADD COLUMN `avatarPresetKey` TEXT")
+        db.execSQL("ALTER TABLE `profiles` ADD COLUMN `avatarFilePath` TEXT")
+    }
+}

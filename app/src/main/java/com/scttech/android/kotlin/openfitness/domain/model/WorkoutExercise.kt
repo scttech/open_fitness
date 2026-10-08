@@ -20,4 +20,6 @@ data class WorkoutExercise(
     val targetDurationSeconds: Int? = null,
     val targetDistanceMeters: Double? = null,
     val notes: String? = null,
+    /** True for a rest step in a Follow Along sequence - [name]/[exerciseId] are ignored, [targetDurationSeconds] is the rest length. */
+    val isRest: Boolean = false,
 )

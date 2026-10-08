@@ -87,6 +87,10 @@ internal fun ActiveSessionRoute(
                 onToggleRunning = viewModel::toggleEmomRunning,
                 onSkip = viewModel::skipEmomPhase,
             ),
+            followAlong = FollowAlongActions(
+                onToggleRunning = viewModel::toggleFollowAlongRunning,
+                onSkip = viewModel::skipFollowAlongPhase,
+            ),
             onDone = onFinished,
             onExerciseClick = onExerciseClick,
         ),
@@ -148,6 +152,14 @@ internal fun ActiveSessionScreen(
                 actions.onExerciseClick,
                 Modifier.padding(padding),
             )
+            is ActiveSessionUiState.FollowAlongSession -> FollowAlongSessionContent(
+                uiState,
+                timerColors,
+                actions.followAlong,
+                actions.onDone,
+                actions.onExerciseClick,
+                Modifier.padding(padding),
+            )
         }
     }
 }
@@ -157,6 +169,7 @@ private fun sessionTitle(uiState: ActiveSessionUiState): String = when (uiState)
     is ActiveSessionUiState.DensitySession -> uiState.workoutName
     is ActiveSessionUiState.SetLoggingSession -> uiState.workoutName
     is ActiveSessionUiState.EmomSession -> uiState.workoutName
+    is ActiveSessionUiState.FollowAlongSession -> uiState.workoutName
     ActiveSessionUiState.Loading -> "Session"
 }
 
@@ -221,6 +234,42 @@ private fun EmomSessionContent(
         verticalArrangement = Arrangement.Center,
     ) {
         Text("Rep goal: ${state.config.repGoal}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        PhaseTimerDisplay(
+            state = state.timerState,
+            workColor = timerColors.workColor,
+            restColor = timerColors.restColor,
+            onPauseResume = actions.onToggleRunning,
+            onSkip = actions.onSkip,
+            onExerciseClick = onExerciseClick,
+        )
+    }
+}
+
+@Composable
+private fun FollowAlongSessionContent(
+    state: ActiveSessionUiState.FollowAlongSession,
+    timerColors: TimerColorPrefs,
+    actions: FollowAlongActions,
+    onDone: () -> Unit,
+    onExerciseClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (state.isFinished) {
+        val completed = state.timerState.phases.count { it.kind == TimerPhaseKind.WORK }
+        SessionCompleteContent(
+            message = state.completionMessage.orEmpty(),
+            summary = "$completed ${if (completed == 1) "exercise" else "exercises"} completed.",
+            onDone = onDone,
+            modifier = modifier,
+        )
+        return
+    }
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
         PhaseTimerDisplay(
             state = state.timerState,
             workColor = timerColors.workColor,

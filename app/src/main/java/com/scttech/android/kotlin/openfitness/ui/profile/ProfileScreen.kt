@@ -1,7 +1,7 @@
 package com.scttech.android.kotlin.openfitness.ui.profile
 
+import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,9 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
@@ -45,10 +45,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.R
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
+import com.scttech.android.kotlin.openfitness.ui.common.AvatarPickerDialog
 import com.scttech.android.kotlin.openfitness.ui.common.ConfirmDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.ProfileAvatar
 import com.scttech.android.kotlin.openfitness.ui.common.TextInputDialog
-import com.scttech.android.kotlin.openfitness.ui.theme.ProfileAccentColors
 
 @Composable
 internal fun ProfileRoute(
@@ -71,6 +72,9 @@ internal fun ProfileRoute(
         onSelectProfile = viewModel::selectProfile,
         onRenameProfile = viewModel::renameProfile,
         onDeleteProfile = viewModel::deleteProfile,
+        onUpdateAvatarFromUri = viewModel::updateAvatarFromUri,
+        onUpdateAvatarPreset = viewModel::updateAvatarPreset,
+        onCreateAvatarCaptureUri = viewModel::createAvatarCaptureUri,
         modifier = modifier,
     )
 }
@@ -82,11 +86,15 @@ internal fun ProfileScreen(
     onSelectProfile: (Profile) -> Unit,
     onRenameProfile: (Profile, String) -> Unit,
     onDeleteProfile: (Profile) -> Unit,
+    onUpdateAvatarFromUri: (Profile, Uri) -> Unit,
+    onUpdateAvatarPreset: (Profile, String) -> Unit,
+    onCreateAvatarCaptureUri: () -> Uri,
     modifier: Modifier = Modifier,
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
     var profileToRename by remember { mutableStateOf<Profile?>(null) }
     var profileToDelete by remember { mutableStateOf<Profile?>(null) }
+    var profileForAvatar by remember { mutableStateOf<Profile?>(null) }
 
     Scaffold(
         modifier = modifier,
@@ -132,6 +140,7 @@ internal fun ProfileScreen(
                                     onClick = { onSelectProfile(profile) },
                                     onRenameClick = { profileToRename = profile },
                                     onDeleteClick = { profileToDelete = profile },
+                                    onAvatarClick = { profileForAvatar = profile },
                                 )
                             }
                         }
@@ -179,6 +188,15 @@ internal fun ProfileScreen(
             onDismiss = { profileToDelete = null },
         )
     }
+
+    profileForAvatar?.let { profile ->
+        AvatarPickerDialog(
+            onPresetPicked = { onUpdateAvatarPreset(profile, it) },
+            onImagePicked = { onUpdateAvatarFromUri(profile, it) },
+            onCreateCaptureUri = onCreateAvatarCaptureUri,
+            onDismiss = { profileForAvatar = null },
+        )
+    }
 }
 
 @Composable
@@ -187,6 +205,7 @@ private fun ProfileCard(
     onClick: () -> Unit,
     onRenameClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onAvatarClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -198,20 +217,16 @@ private fun ProfileCard(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        color = ProfileAccentColors[profile.colorIndex % ProfileAccentColors.size],
-                        shape = CircleShape,
-                    ),
-            )
+            ProfileAvatar(profile = profile, size = 40.dp)
             Spacer(Modifier.width(16.dp))
             Text(
                 text = profile.name,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.weight(1f),
             )
+            IconButton(onClick = onAvatarClick) {
+                Icon(Icons.Filled.CameraAlt, contentDescription = "Change avatar for ${profile.name}")
+            }
             IconButton(onClick = onRenameClick) {
                 Icon(Icons.Filled.Edit, contentDescription = "Rename ${profile.name}")
             }

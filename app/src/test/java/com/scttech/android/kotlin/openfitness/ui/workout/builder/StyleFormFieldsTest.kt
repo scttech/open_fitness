@@ -76,4 +76,36 @@ class StyleFormFieldsTest {
         assertEquals("Kettlebell Swing", exercises[0].name)
         assertEquals("Push-Up", exercises[1].name)
     }
+
+    @Test
+    fun `follow along fields convert to config using entered values`() {
+        val fields = StyleFormFields.FollowAlongFields(defaultRestSeconds = "20")
+        val config = fields.toStyleConfig() as WorkoutStyleConfig.FollowAlong
+        assertEquals(20, config.defaultRestSeconds)
+    }
+
+    @Test
+    fun `follow along steps convert to rest and exercise WorkoutExercise entries, falling back to sane defaults on blank seconds`() {
+        val steps = listOf(
+            FollowAlongStepField(isRest = false, name = "Push-Up", exerciseId = 1L, seconds = "40"),
+            FollowAlongStepField(isRest = true, name = "Rest", seconds = ""),
+            FollowAlongStepField(isRest = false, name = "", seconds = "30"),
+            FollowAlongStepField(isRest = false, name = "Air Squat", seconds = "not a number"),
+        )
+        val exercises = steps.toWorkoutExercises()
+
+        assertEquals(3, exercises.size)
+        assertEquals("Push-Up", exercises[0].name)
+        assertEquals(1L, exercises[0].exerciseId)
+        assertEquals(40, exercises[0].targetDurationSeconds)
+        assertEquals(false, exercises[0].isRest)
+
+        assertEquals("Rest", exercises[1].name)
+        assertEquals(true, exercises[1].isRest)
+        assertEquals(15, exercises[1].targetDurationSeconds)
+
+        assertEquals("Air Squat", exercises[2].name)
+        assertEquals(false, exercises[2].isRest)
+        assertEquals(30, exercises[2].targetDurationSeconds)
+    }
 }

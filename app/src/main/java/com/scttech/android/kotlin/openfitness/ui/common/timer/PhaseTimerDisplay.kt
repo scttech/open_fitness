@@ -56,7 +56,7 @@ fun PhaseTimerDisplay(
         val exerciseId = phase.exerciseId
         Text(
             phase.label.uppercase(),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineLarge,
             color = color,
             modifier = if (exerciseId != null && onExerciseClick != null) {
                 Modifier.clickable { onExerciseClick(exerciseId) }
@@ -79,7 +79,7 @@ fun PhaseTimerDisplay(
         if (comingUpLabel != null) {
             Spacer(Modifier.height(16.dp))
             Text("Coming up...", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(comingUpLabel, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(comingUpLabel, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(24.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

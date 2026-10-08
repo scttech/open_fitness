@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepository
 import com.scttech.android.kotlin.openfitness.domain.model.Program
+import com.scttech.android.kotlin.openfitness.domain.model.ProgramDayType
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramTest
 import com.scttech.android.kotlin.openfitness.ui.navigation.ProgramDetailRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,11 +17,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import javax.inject.Inject
 
 sealed interface ProgramDetailUiState {
     data object Loading : ProgramDetailUiState
-    data class Success(val program: Program, val tests: List<ProgramTest>) : ProgramDetailUiState
+    data class Success(val program: Program, val tests: List<ProgramTest>) : ProgramDetailUiState {
+        /** Whether today is a rest day under [program]'s weekly schedule, used to warn before starting a session. */
+        val isRestDayToday: Boolean
+            get() = program.config.weekSchedule[Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek] == ProgramDayType.REST
+    }
     data object NotFound : ProgramDetailUiState
 }
 

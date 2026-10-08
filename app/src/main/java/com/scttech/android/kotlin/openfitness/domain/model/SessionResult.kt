@@ -52,4 +52,9 @@ sealed interface SessionResult {
     data class EmomResult(
         val roundsCompleted: Int,
     ) : SessionResult
+
+    @Serializable
+    data class FollowAlongResult(
+        val exercisesCompleted: Int,
+    ) : SessionResult
 }

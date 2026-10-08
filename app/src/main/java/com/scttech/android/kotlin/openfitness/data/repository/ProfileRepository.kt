@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.data.repository
 
+import android.net.Uri
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
@@ -20,4 +21,8 @@ interface ProfileRepository {
     suspend fun setTimerSoundEnabled(profileId: Long, enabled: Boolean)
     suspend fun setTimerWorkColor(profileId: Long, argb: Int)
     suspend fun setTimerRestColor(profileId: Long, argb: Int)
+    suspend fun updateAvatarFromUri(profile: Profile, uri: Uri)
+    suspend fun updateAvatarPreset(profile: Profile, presetKey: String)
+    /** Not suspend - just creates an empty local file + FileProvider Uri, needed synchronously to launch the camera intent. */
+    fun createAvatarCaptureUri(): Uri
 }

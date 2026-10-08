@@ -61,6 +61,10 @@ sealed interface StyleFormFields {
         val restBetweenRoundsSeconds: String,
     ) : StyleFormFields
 
+    data class FollowAlongFields(
+        val defaultRestSeconds: String,
+    ) : StyleFormFields
+
     companion object {
         fun default(style: WorkoutStyle): StyleFormFields = when (style) {
             WorkoutStyle.TABATA -> TabataFields("20", "10", "8", "1", "60")
@@ -69,6 +73,7 @@ sealed interface StyleFormFields {
             WorkoutStyle.DENSITY -> DensityFields("15", "")
             WorkoutStyle.STEP_LOADING -> StepLoadingFields("", "20", "5", "5", "5", "", "60")
             WorkoutStyle.EMOM -> EmomFields("10", "3", "60")
+            WorkoutStyle.FOLLOW_ALONG -> FollowAlongFields("15")
         }
 
         fun from(config: WorkoutStyleConfig, exercises: List<WorkoutExercise>): StyleFormFields = when (config) {
@@ -115,6 +120,9 @@ sealed interface StyleFormFields {
                 rounds = config.rounds.toString(),
                 restBetweenRoundsSeconds = config.restBetweenRoundsSeconds.toString(),
             )
+            is WorkoutStyleConfig.FollowAlong -> FollowAlongFields(
+                defaultRestSeconds = config.defaultRestSeconds.toString(),
+            )
         }
     }
 }
@@ -158,6 +166,9 @@ fun StyleFormFields.toStyleConfig(): WorkoutStyleConfig = when (this) {
         rounds = rounds.toIntOrNull() ?: 3,
         restBetweenRoundsSeconds = restBetweenRoundsSeconds.toIntOrNull() ?: 60,
     )
+    is StyleFormFields.FollowAlongFields -> WorkoutStyleConfig.FollowAlong(
+        defaultRestSeconds = defaultRestSeconds.toIntOrNull() ?: 15,
+    )
 }
 
 /** Applies a library-picked exercise to the styles that target a single named exercise. */
@@ -198,4 +209,7 @@ fun StyleFormFields.toExercises(circuitExercises: List<CircuitExerciseField>): L
             targetWeightKg = startWeightKg.toDoubleOrNull(),
         ),
     )
+    // Follow Along's real exercises come from WorkoutBuilderUiState.Loaded.followAlongSteps
+    // (via List<FollowAlongStepField>.toWorkoutExercises()), not this generic circuit path.
+    is StyleFormFields.FollowAlongFields -> emptyList()
 }

@@ -67,4 +67,10 @@ class WorkoutStyleConfigTest {
         assertEquals(3, config.rounds)
         assertEquals(60, config.restBetweenRoundsSeconds)
     }
+
+    @Test
+    fun `follow along default config uses sane defaults`() {
+        val config = WorkoutStyleConfig.FollowAlong()
+        assertEquals(15, config.defaultRestSeconds)
+    }
 }

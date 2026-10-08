@@ -59,4 +59,12 @@ sealed interface ActiveSessionUiState {
         /** Set once [isFinished], so the screen can send the user off on a high note. */
         val completionMessage: String? = null,
     ) : ActiveSessionUiState
+
+    data class FollowAlongSession(
+        val workoutName: String,
+        val timerState: PhaseTimerState,
+        val isFinished: Boolean,
+        /** Set once [isFinished], so the screen can send the user off on a high note. */
+        val completionMessage: String? = null,
+    ) : ActiveSessionUiState
 }

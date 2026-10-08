@@ -34,4 +34,10 @@ interface ProfileDao {
 
     @Query("UPDATE profiles SET timerRestColorArgb = :argb WHERE id = :profileId")
     suspend fun updateTimerRestColorArgb(profileId: Long, argb: Int)
+
+    @Query("UPDATE profiles SET avatarPresetKey = :presetKey, avatarFilePath = NULL WHERE id = :profileId")
+    suspend fun updateAvatarPreset(profileId: Long, presetKey: String)
+
+    @Query("UPDATE profiles SET avatarFilePath = :filePath, avatarPresetKey = NULL WHERE id = :profileId")
+    suspend fun updateAvatarFilePath(profileId: Long, filePath: String)
 }

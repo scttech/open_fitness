@@ -65,6 +65,7 @@ class ActiveSessionViewModel @Inject constructor(
 
     private var tabataStarted = false
     private var emomStarted = false
+    private var followAlongStarted = false
     private val soundPlayer = TimerSoundPlayer()
     private var soundEnabled = true
 
@@ -84,6 +85,12 @@ class ActiveSessionViewModel @Inject constructor(
         scope = viewModelScope,
         onTick = { remaining, _ -> onCountdownTick(remaining) },
         onPhaseComplete = { playPhaseCompleteSound() },
+    )
+    private val followAlongTimer = PhaseTimerController(
+        scope = viewModelScope,
+        onTick = { remaining, _ -> onCountdownTick(remaining) },
+        onPhaseComplete = { playPhaseCompleteSound() },
+        onAllPhasesComplete = ::finishFollowAlong,
     )
 
     init {
@@ -115,6 +122,13 @@ class ActiveSessionViewModel @Inject constructor(
                     (current as? ActiveSessionUiState.SetLoggingSession)?.copy(
                         restTimerState = timerState.takeIf { it.phases.isNotEmpty() && !it.isFinished },
                     ) ?: current
+                }
+            }
+        }
+        viewModelScope.launch {
+            followAlongTimer.state.collect { timerState ->
+                _uiState.update { current ->
+                    (current as? ActiveSessionUiState.FollowAlongSession)?.copy(timerState = timerState) ?: current
                 }
             }
         }
@@ -190,6 +204,15 @@ class ActiveSessionViewModel @Inject constructor(
             ActiveSessionUiState.EmomSession(
                 workoutName = workout.name,
                 config = config,
+                timerState = PhaseTimerState(phases = phases, secondsRemaining = phases.firstOrNull()?.seconds ?: 0),
+                isFinished = false,
+            )
+        }
+        is WorkoutStyleConfig.FollowAlong -> {
+            val exercises = workout.exercises.sortedBy { it.order }
+            val phases = buildFollowAlongPhases(exercises)
+            ActiveSessionUiState.FollowAlongSession(
+                workoutName = workout.name,
                 timerState = PhaseTimerState(phases = phases, secondsRemaining = phases.firstOrNull()?.seconds ?: 0),
                 isFinished = false,
             )
@@ -289,6 +312,42 @@ class ActiveSessionViewModel @Inject constructor(
         }
         val config = workout.styleConfig as? WorkoutStyleConfig.Emom ?: return
         saveSession(SessionResult.EmomResult(roundsCompleted = config.rounds))
+        markFinished()
+    }
+
+    // ---- Follow Along timer ----
+
+    /** One phase per step, in order - no rounds/cycles multiplication, since each step already carries its own duration. */
+    private fun buildFollowAlongPhases(exercises: List<WorkoutExercise>): List<TimerPhase> = exercises.map { exercise ->
+        if (exercise.isRest) {
+            TimerPhase(TimerPhaseKind.REST, "Rest", exercise.targetDurationSeconds ?: 0)
+        } else {
+            TimerPhase(TimerPhaseKind.WORK, exercise.name, exercise.targetDurationSeconds ?: 30, exerciseId = exercise.exerciseId)
+        }
+    }
+
+    fun toggleFollowAlongRunning() {
+        val state = _uiState.value as? ActiveSessionUiState.FollowAlongSession ?: return
+        when {
+            !followAlongStarted -> {
+                followAlongStarted = true
+                followAlongTimer.start(state.timerState.phases)
+            }
+            state.timerState.isRunning -> followAlongTimer.pause()
+            else -> followAlongTimer.resume()
+        }
+    }
+
+    fun skipFollowAlongPhase() = followAlongTimer.skip()
+
+    private fun finishFollowAlong() {
+        if (!::workout.isInitialized) return
+        _uiState.update {
+            (it as? ActiveSessionUiState.FollowAlongSession)
+                ?.copy(isFinished = true, completionMessage = MotivationalMessages.random())
+                ?: it
+        }
+        saveSession(SessionResult.FollowAlongResult(exercisesCompleted = workout.exercises.count { !it.isRest }))
         markFinished()
     }
 
@@ -450,6 +509,7 @@ class ActiveSessionViewModel @Inject constructor(
         tabataTimer.stop()
         emomTimer.stop()
         restTimer.stop()
+        followAlongTimer.stop()
         soundPlayer.release()
     }
 

@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepository
 import com.scttech.android.kotlin.openfitness.data.repository.WorkoutRepository
 import com.scttech.android.kotlin.openfitness.di.ApplicationScope
+import com.scttech.android.kotlin.openfitness.notification.ProgramDayAlertWorker
 import com.scttech.android.kotlin.openfitness.notification.RetestReminderWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -43,9 +44,15 @@ class OpenFitnessApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.KEEP,
             PeriodicWorkRequestBuilder<RetestReminderWorker>(1, TimeUnit.DAYS).build(),
         )
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            PROGRAM_DAY_ALERT_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            PeriodicWorkRequestBuilder<ProgramDayAlertWorker>(1, TimeUnit.DAYS).build(),
+        )
     }
 
     private companion object {
         const val RETEST_REMINDER_WORK_NAME = "retest_reminder"
+        const val PROGRAM_DAY_ALERT_WORK_NAME = "program_day_alert"
     }
 }

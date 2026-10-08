@@ -115,7 +115,7 @@ internal fun WorkoutDetailScreen(
                     HorizontalDivider()
 
                     Text("Plan", style = MaterialTheme.typography.titleLarge)
-                    Text(styleSummary(workout.styleConfig), style = MaterialTheme.typography.bodyLarge)
+                    Text(styleSummary(workout), style = MaterialTheme.typography.bodyLarge)
 
                     HorizontalDivider()
 
@@ -178,7 +178,7 @@ private fun exerciseDetail(exercise: com.scttech.android.kotlin.openfitness.doma
     return if (parts.isEmpty()) "" else " (${parts.joinToString(", ")})"
 }
 
-private fun styleSummary(config: WorkoutStyleConfig): String = when (config) {
+private fun styleSummary(workout: Workout): String = when (val config = workout.styleConfig) {
     is WorkoutStyleConfig.Tabata -> buildString {
         append("${config.workSeconds}s work / ${config.restSeconds}s rest × ${config.roundsPerCycle} rounds")
         if (config.roundsPerCycle > 1) append(", ${config.restBetweenCyclesSeconds}s between rounds")
@@ -197,4 +197,12 @@ private fun styleSummary(config: WorkoutStyleConfig): String = when (config) {
             (config.deloadEverySessions?.let { ", deload every $it sessions" } ?: "")
     is WorkoutStyleConfig.Emom ->
         "60s per exercise × ${config.rounds} rounds, goal ${config.repGoal} reps, ${config.restBetweenRoundsSeconds}s rest between rounds"
+    is WorkoutStyleConfig.FollowAlong -> {
+        val workCount = workout.exercises.count { !it.isRest }
+        val restCount = workout.exercises.count { it.isRest }
+        val totalMinutes = (workout.exercises.sumOf { it.targetDurationSeconds ?: 0 } + 59) / 60
+        "$workCount exercise${if (workCount == 1) "" else "s"}" +
+            (if (restCount > 0) ", $restCount rest break${if (restCount == 1) "" else "s"}" else "") +
+            ", ~$totalMinutes min total"
+    }
 }

@@ -96,6 +96,15 @@ sealed interface WorkoutStyleConfig {
         override val style get() = WorkoutStyle.EMOM
     }
 
+    /** Each exercise runs for its own duration, in order; rest can be inserted anywhere as its own step. */
+    @Serializable
+    data class FollowAlong(
+        /** Prefills a newly-inserted rest step's duration in the builder - each step's actual length is still independently editable. */
+        val defaultRestSeconds: Int = 15,
+    ) : WorkoutStyleConfig {
+        override val style get() = WorkoutStyle.FOLLOW_ALONG
+    }
+
     companion object {
         fun default(style: WorkoutStyle): WorkoutStyleConfig = when (style) {
             WorkoutStyle.TABATA -> Tabata()
@@ -104,6 +113,7 @@ sealed interface WorkoutStyleConfig {
             WorkoutStyle.DENSITY -> Density()
             WorkoutStyle.STEP_LOADING -> StepLoading()
             WorkoutStyle.EMOM -> Emom()
+            WorkoutStyle.FOLLOW_ALONG -> FollowAlong()
         }
     }
 }

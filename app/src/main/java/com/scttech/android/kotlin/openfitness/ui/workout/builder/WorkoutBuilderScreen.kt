@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -70,6 +71,11 @@ internal fun WorkoutBuilderRoute(
         onPickCircuitExercise = viewModel::pickCircuitExercise,
         onAddCircuitExercise = viewModel::addCircuitExercise,
         onRemoveCircuitExercise = viewModel::removeCircuitExercise,
+        onPickFollowAlongExercise = viewModel::pickFollowAlongExercise,
+        onAddFollowAlongExercise = viewModel::addFollowAlongExercise,
+        onAddFollowAlongRest = viewModel::addFollowAlongRest,
+        onUpdateFollowAlongSeconds = viewModel::updateFollowAlongSeconds,
+        onRemoveFollowAlongStep = viewModel::removeFollowAlongStep,
         onSave = viewModel::save,
         modifier = modifier,
     )
@@ -85,6 +91,11 @@ internal fun WorkoutBuilderScreen(
     onPickCircuitExercise: (Int, String, Long?) -> Unit,
     onAddCircuitExercise: () -> Unit,
     onRemoveCircuitExercise: (Int) -> Unit,
+    onPickFollowAlongExercise: (Int, String, Long?) -> Unit,
+    onAddFollowAlongExercise: () -> Unit,
+    onAddFollowAlongRest: () -> Unit,
+    onUpdateFollowAlongSeconds: (Int, String) -> Unit,
+    onRemoveFollowAlongStep: (Int) -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,10 +146,17 @@ internal fun WorkoutBuilderScreen(
                         fields = uiState.fields,
                         circuitExercises = uiState.circuitExercises,
                         usesCircuitExercises = uiState.usesCircuitExercises,
+                        followAlongSteps = uiState.followAlongSteps,
+                        usesFollowAlongSteps = uiState.usesFollowAlongSteps,
                         onFieldsChange = onFieldsChange,
                         onPickCircuitExercise = onPickCircuitExercise,
                         onAddCircuitExercise = onAddCircuitExercise,
                         onRemoveCircuitExercise = onRemoveCircuitExercise,
+                        onPickFollowAlongExercise = onPickFollowAlongExercise,
+                        onAddFollowAlongExercise = onAddFollowAlongExercise,
+                        onAddFollowAlongRest = onAddFollowAlongRest,
+                        onUpdateFollowAlongSeconds = onUpdateFollowAlongSeconds,
+                        onRemoveFollowAlongStep = onRemoveFollowAlongStep,
                     )
 
                     HorizontalDivider()
@@ -165,15 +183,23 @@ private fun StyleFieldsForm(
     fields: StyleFormFields,
     circuitExercises: List<CircuitExerciseField>,
     usesCircuitExercises: Boolean,
+    followAlongSteps: List<FollowAlongStepField>,
+    usesFollowAlongSteps: Boolean,
     onFieldsChange: (StyleFormFields) -> Unit,
     onPickCircuitExercise: (Int, String, Long?) -> Unit,
     onAddCircuitExercise: () -> Unit,
     onRemoveCircuitExercise: (Int) -> Unit,
+    onPickFollowAlongExercise: (Int, String, Long?) -> Unit,
+    onAddFollowAlongExercise: () -> Unit,
+    onAddFollowAlongRest: () -> Unit,
+    onUpdateFollowAlongSeconds: (Int, String) -> Unit,
+    onRemoveFollowAlongStep: (Int) -> Unit,
 ) {
     val numberOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     val decimalOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     var showExercisePicker by remember { mutableStateOf(false) }
     var circuitPickerIndex by remember { mutableStateOf<Int?>(null) }
+    var followAlongPickerIndex by remember { mutableStateOf<Int?>(null) }
     var showRestGuidance by remember { mutableStateOf(false) }
     var showSetsRepsGuidance by remember { mutableStateOf(false) }
 
@@ -349,6 +375,17 @@ private fun StyleFieldsForm(
                 onFieldsChange(fields.copy(restBetweenRoundsSeconds = it))
             }
         }
+        is StyleFormFields.FollowAlongFields -> {
+            NumberField(
+                "Default rest (sec)",
+                fields.defaultRestSeconds,
+                Modifier.fillMaxWidth(),
+                onHelpClick = { showRestGuidance = true },
+                helpContentDescription = "How much rest do I need?",
+            ) {
+                onFieldsChange(fields.copy(defaultRestSeconds = it))
+            }
+        }
     }
 
     if (usesCircuitExercises) {
@@ -377,6 +414,57 @@ private fun StyleFieldsForm(
         }
     }
 
+    if (usesFollowAlongSteps) {
+        Text("Sequence", style = MaterialTheme.typography.titleLarge)
+        followAlongSteps.forEachIndexed { index, step ->
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (step.isRest) {
+                    OutlinedTextField(
+                        value = "Rest",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Step ${index + 1}") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = step.name,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Step ${index + 1}") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                    )
+                    IconButton(onClick = { followAlongPickerIndex = index }) {
+                        Icon(Icons.Filled.LibraryBooks, contentDescription = "Pick exercise for step ${index + 1}")
+                    }
+                }
+                OutlinedTextField(
+                    value = step.seconds,
+                    onValueChange = { onUpdateFollowAlongSeconds(index, it) },
+                    label = { Text(if (step.isRest) "Rest (sec)" else "Work (sec)") },
+                    keyboardOptions = numberOptions,
+                    modifier = Modifier.width(110.dp),
+                    singleLine = true,
+                )
+                IconButton(onClick = { onRemoveFollowAlongStep(index) }, enabled = followAlongSteps.size > 1) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Remove step ${index + 1}")
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onAddFollowAlongExercise) {
+                Icon(Icons.Filled.Add, contentDescription = null)
+                Text("Add exercise")
+            }
+            TextButton(onClick = onAddFollowAlongRest) {
+                Icon(Icons.Filled.Add, contentDescription = null)
+                Text("Add rest")
+            }
+        }
+    }
+
     if (showExercisePicker) {
         ExercisePickerDialog(
             onSelected = { exercise ->
@@ -395,6 +483,17 @@ private fun StyleFieldsForm(
                 circuitPickerIndex = null
             },
             onDismiss = { circuitPickerIndex = null },
+        )
+    }
+
+    val followAlongIndex = followAlongPickerIndex
+    if (followAlongIndex != null) {
+        ExercisePickerDialog(
+            onSelected = { exercise ->
+                onPickFollowAlongExercise(followAlongIndex, exercise.name, exercise.id)
+                followAlongPickerIndex = null
+            },
+            onDismiss = { followAlongPickerIndex = null },
         )
     }
 

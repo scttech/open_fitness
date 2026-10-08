@@ -26,4 +26,8 @@ enum class WorkoutStyle(val displayName: String, val shortDescription: String) {
         displayName = "EMOM",
         shortDescription = "Every Minute on the Minute: cycle through your exercises in 60-second windows.",
     ),
+    FOLLOW_ALONG(
+        displayName = "Follow Along",
+        shortDescription = "Move from exercise to exercise on a timer, with rest wherever you want it.",
+    ),
 }

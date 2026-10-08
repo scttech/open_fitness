@@ -14,7 +14,10 @@ import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,11 +45,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.Exercise
+import com.scttech.android.kotlin.openfitness.domain.model.ProgramDayType
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramGoalType
+import com.scttech.android.kotlin.openfitness.domain.model.ProgramWeekSchedule
 import com.scttech.android.kotlin.openfitness.domain.model.RepStrategy
 import com.scttech.android.kotlin.openfitness.ui.common.ExercisePickerDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
 import com.scttech.android.kotlin.openfitness.ui.theme.OpenFitnessTheme
+import kotlinx.datetime.DayOfWeek
 
 @Composable
 internal fun ProgramBuilderRoute(
@@ -74,8 +80,8 @@ internal fun ProgramBuilderRoute(
         onCustomSetTargetChange = viewModel::updateCustomSetTarget,
         onAddCustomSet = viewModel::addCustomSet,
         onRemoveCustomSet = viewModel::removeCustomSet,
-        onSessionsPerWeekChange = viewModel::updateSessionsPerWeek,
-        onRetestIntervalDaysChange = viewModel::updateRetestIntervalDays,
+        onCycleDayType = viewModel::cycleDayType,
+        onRetestEveryWeeksChange = viewModel::updateRetestEveryWeeks,
         onRestSecondsChange = viewModel::updateRestSeconds,
         onSave = viewModel::save,
         modifier = modifier,
@@ -94,8 +100,8 @@ internal fun ProgramBuilderScreen(
     onCustomSetTargetChange: (Int, String) -> Unit,
     onAddCustomSet: () -> Unit,
     onRemoveCustomSet: (Int) -> Unit,
-    onSessionsPerWeekChange: (String) -> Unit,
-    onRetestIntervalDaysChange: (String) -> Unit,
+    onCycleDayType: (DayOfWeek) -> Unit,
+    onRetestEveryWeeksChange: (String) -> Unit,
     onRestSecondsChange: (String) -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
@@ -201,24 +207,19 @@ internal fun ProgramBuilderScreen(
 
                     HorizontalDivider()
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                            value = uiState.sessionsPerWeek,
-                            onValueChange = onSessionsPerWeekChange,
-                            label = { Text("Sessions/week") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                        OutlinedTextField(
-                            value = uiState.retestIntervalDays,
-                            onValueChange = onRetestIntervalDaysChange,
-                            label = { Text("Retest every (days)") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                    }
+                    WeekSchedulePicker(
+                        weekSchedule = uiState.weekSchedule,
+                        onCycleDayType = onCycleDayType,
+                    )
+
+                    OutlinedTextField(
+                        value = uiState.retestEveryWeeks,
+                        onValueChange = onRetestEveryWeeksChange,
+                        label = { Text("Retest every (weeks)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                    )
 
                     OutlinedTextField(
                         value = uiState.restSeconds,
@@ -246,6 +247,70 @@ internal fun ProgramBuilderScreen(
             onDismiss = { showExercisePicker = false },
         )
     }
+}
+
+@Composable
+private fun WeekSchedulePicker(
+    weekSchedule: ProgramWeekSchedule,
+    onCycleDayType: (DayOfWeek) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Weekly schedule", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Tap a day to cycle it through Workout, Rest, and Test.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            DayOfWeek.entries.forEach { day ->
+                val dayType = weekSchedule[day]
+                FilterChip(
+                    selected = dayType != ProgramDayType.REST,
+                    onClick = { onCycleDayType(day) },
+                    label = { Text(day.shortLabel()) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = if (dayType == ProgramDayType.TEST) {
+                            MaterialTheme.colorScheme.tertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.primaryContainer
+                        },
+                        selectedLabelColor = if (dayType == ProgramDayType.TEST) {
+                            MaterialTheme.colorScheme.onTertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        },
+                    ),
+                )
+            }
+        }
+        Text(
+            "${weekSchedule.workoutDayCount} workout day(s)/week" +
+                (weekSchedule.testDay?.let { " · Test day: ${it.fullLabel()}" } ?: " · No test day set"),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun DayOfWeek.shortLabel(): String = when (this) {
+    DayOfWeek.MONDAY -> "Mon"
+    DayOfWeek.TUESDAY -> "Tue"
+    DayOfWeek.WEDNESDAY -> "Wed"
+    DayOfWeek.THURSDAY -> "Thu"
+    DayOfWeek.FRIDAY -> "Fri"
+    DayOfWeek.SATURDAY -> "Sat"
+    DayOfWeek.SUNDAY -> "Sun"
+}
+
+private fun DayOfWeek.fullLabel(): String = when (this) {
+    DayOfWeek.MONDAY -> "Monday"
+    DayOfWeek.TUESDAY -> "Tuesday"
+    DayOfWeek.WEDNESDAY -> "Wednesday"
+    DayOfWeek.THURSDAY -> "Thursday"
+    DayOfWeek.FRIDAY -> "Friday"
+    DayOfWeek.SATURDAY -> "Saturday"
+    DayOfWeek.SUNDAY -> "Sunday"
 }
 
 @Composable

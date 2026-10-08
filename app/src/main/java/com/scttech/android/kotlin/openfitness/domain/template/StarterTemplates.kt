@@ -180,7 +180,84 @@ object StarterTemplates {
             isTemplate = true,
             createdAt = TEMPLATE_EPOCH,
         ),
+        Workout(
+            profileId = null,
+            name = "Bodyweight Follow Along",
+            style = WorkoutStyle.FOLLOW_ALONG,
+            styleConfig = WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            exercises = followAlongSequence(
+                "Jumping Jack" to 40, "Rest" to 15,
+                "Push-Up" to 40, "Rest" to 15,
+                "Air Squat" to 40, "Rest" to 15,
+                "Mountain Climber" to 40, "Rest" to 15,
+                "Plank" to 40, "Rest" to 15,
+                "Burpee" to 40, "Rest" to 20,
+                "Lunge" to 40, "Rest" to 15,
+                "Bicycle Crunch" to 40,
+            ),
+            notes = "No equipment needed - work through each move for 40s, with rest wherever it's placed.",
+            isTemplate = true,
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Workout(
+            profileId = null,
+            name = "Dumbbell Follow Along",
+            style = WorkoutStyle.FOLLOW_ALONG,
+            styleConfig = WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            exercises = followAlongSequence(
+                "Goblet Squat" to 40, "Rest" to 15,
+                "Dumbbell Shoulder Press" to 40, "Rest" to 15,
+                "Single-Arm Dumbbell Row" to 40, "Rest" to 15,
+                "Dumbbell Bicep Curl" to 40, "Rest" to 15,
+                "Dumbbell Fly" to 40, "Rest" to 15,
+                "Dumbbell Shrug" to 40,
+            ),
+            notes = "A pair of dumbbells, one move at a time.",
+            isTemplate = true,
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Workout(
+            profileId = null,
+            name = "Single Kettlebell Follow Along",
+            style = WorkoutStyle.FOLLOW_ALONG,
+            styleConfig = WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            exercises = followAlongSequence(
+                "Kettlebell Swing" to 40, "Rest" to 15,
+                "Goblet Squat" to 40, "Rest" to 15,
+                "Kettlebell Clean" to 40, "Rest" to 15,
+                "Turkish Get-Up" to 60, "Rest" to 20,
+                "Kettlebell Snatch" to 40, "Rest" to 15,
+                "Clean and Press" to 40,
+            ),
+            notes = "Just one kettlebell - Turkish Get-Up runs longer since it's a slower, more technical move.",
+            isTemplate = true,
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Workout(
+            profileId = null,
+            name = "Steel Mace Follow Along",
+            style = WorkoutStyle.FOLLOW_ALONG,
+            styleConfig = WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            exercises = followAlongSequence(
+                "Mace 360 Swing" to 40, "Rest" to 15,
+                "Mace 10-to-2 Swing" to 40, "Rest" to 15,
+                "Mace Squat" to 40, "Rest" to 15,
+                "Mace Front Raise (Around the World)" to 40, "Rest" to 15,
+                "Mace 360 Swing" to 40, "Rest" to 15,
+                "Mace 10-to-2 Swing" to 40,
+            ),
+            notes = "One mace, both sides - the swings repeat a second time to cover the other side.",
+            isTemplate = true,
+            createdAt = TEMPLATE_EPOCH,
+        ),
     )
+
+    /** Builds an ordered Follow Along exercise list from (name, seconds) pairs - "Rest" names become rest steps. */
+    private fun followAlongSequence(vararg steps: Pair<String, Int>): List<WorkoutExercise> =
+        steps.mapIndexed { index, (name, seconds) ->
+            val isRest = name == "Rest"
+            WorkoutExercise(order = index, name = name, targetDurationSeconds = seconds, isRest = isRest)
+        }
 
     private val TEMPLATE_EPOCH = Instant.fromEpochMilliseconds(0L)
 }

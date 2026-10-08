@@ -9,6 +9,7 @@ import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepository
 import com.scttech.android.kotlin.openfitness.domain.model.Exercise
 import com.scttech.android.kotlin.openfitness.domain.model.Program
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramConfig
+import com.scttech.android.kotlin.openfitness.domain.model.ProgramDayType
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramGoalType
 import com.scttech.android.kotlin.openfitness.domain.model.RepStrategy
 import com.scttech.android.kotlin.openfitness.domain.model.RepStrategyConfig
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DayOfWeek
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,8 +58,8 @@ class ProgramBuilderViewModel @Inject constructor(
                         repStrategy = repStrategyConfig.strategy,
                         customSetTargets = (repStrategyConfig as? RepStrategyConfig.CustomManual)
                             ?.setTargets?.map { it.toString() }.orEmpty(),
-                        sessionsPerWeek = program.config.sessionsPerWeek.toString(),
-                        retestIntervalDays = program.config.retestIntervalDays.toString(),
+                        weekSchedule = program.config.weekSchedule,
+                        retestEveryWeeks = program.config.retestEveryWeeks.toString(),
                         restSeconds = program.config.restSeconds.toString(),
                     )
                     return@launch
@@ -71,8 +73,8 @@ class ProgramBuilderViewModel @Inject constructor(
                 goalType = ProgramGoalType.REPS,
                 goalTarget = "100",
                 repStrategy = RepStrategy.PERCENTAGE_LADDER,
-                sessionsPerWeek = ProgramConfig().sessionsPerWeek.toString(),
-                retestIntervalDays = ProgramConfig().retestIntervalDays.toString(),
+                weekSchedule = ProgramConfig().weekSchedule,
+                retestEveryWeeks = ProgramConfig().retestEveryWeeks.toString(),
                 restSeconds = ProgramConfig().restSeconds.toString(),
             )
         }
@@ -81,9 +83,24 @@ class ProgramBuilderViewModel @Inject constructor(
     fun updateName(name: String) = updateLoaded { copy(name = name) }
     fun updateGoalType(goalType: ProgramGoalType) = updateLoaded { copy(goalType = goalType) }
     fun updateGoalTarget(value: String) = updateLoaded { copy(goalTarget = value) }
-    fun updateSessionsPerWeek(value: String) = updateLoaded { copy(sessionsPerWeek = value) }
-    fun updateRetestIntervalDays(value: String) = updateLoaded { copy(retestIntervalDays = value) }
+    fun updateRetestEveryWeeks(value: String) = updateLoaded { copy(retestEveryWeeks = value) }
     fun updateRestSeconds(value: String) = updateLoaded { copy(restSeconds = value) }
+
+    /** Cycles a day WORKOUT -> REST -> TEST -> WORKOUT. Landing on TEST demotes any other TEST day to REST, so at most one is ever set. */
+    fun cycleDayType(dayOfWeek: DayOfWeek) = updateLoaded {
+        val next = when (weekSchedule[dayOfWeek]) {
+            ProgramDayType.WORKOUT -> ProgramDayType.REST
+            ProgramDayType.REST -> ProgramDayType.TEST
+            ProgramDayType.TEST -> ProgramDayType.WORKOUT
+        }
+        var updated = weekSchedule.with(dayOfWeek, next)
+        if (next == ProgramDayType.TEST) {
+            DayOfWeek.entries
+                .filter { it != dayOfWeek && updated[it] == ProgramDayType.TEST }
+                .forEach { updated = updated.with(it, ProgramDayType.REST) }
+        }
+        copy(weekSchedule = updated)
+    }
 
     fun updateRepStrategy(strategy: RepStrategy) = updateLoaded {
         copy(
@@ -136,8 +153,8 @@ class ProgramBuilderViewModel @Inject constructor(
             }
             val config = (existing?.config ?: ProgramConfig()).copy(
                 repStrategyConfig = repStrategyConfig,
-                sessionsPerWeek = state.sessionsPerWeek.toIntOrNull() ?: 3,
-                retestIntervalDays = state.retestIntervalDays.toIntOrNull() ?: 14,
+                weekSchedule = state.weekSchedule,
+                retestEveryWeeks = state.retestEveryWeeks.toIntOrNull()?.coerceAtLeast(1) ?: 1,
                 restSeconds = state.restSeconds.toIntOrNull()?.coerceAtLeast(0) ?: 90,
             )
             val program = if (existing != null) {

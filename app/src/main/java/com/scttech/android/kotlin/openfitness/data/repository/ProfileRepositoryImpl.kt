@@ -1,6 +1,8 @@
 package com.scttech.android.kotlin.openfitness.data.repository
 
+import android.net.Uri
 import com.scttech.android.kotlin.openfitness.data.datastore.UserPreferencesDataSource
+import com.scttech.android.kotlin.openfitness.data.local.AvatarImageStore
 import com.scttech.android.kotlin.openfitness.data.local.dao.ProfileDao
 import com.scttech.android.kotlin.openfitness.data.local.entity.asDomainModel
 import com.scttech.android.kotlin.openfitness.data.local.entity.asEntity
@@ -20,6 +22,7 @@ import javax.inject.Singleton
 class ProfileRepositoryImpl @Inject constructor(
     private val profileDao: ProfileDao,
     private val preferencesDataSource: UserPreferencesDataSource,
+    private val avatarImageStore: AvatarImageStore,
 ) : ProfileRepository {
 
     override fun observeProfiles(): Flow<List<Profile>> =
@@ -53,6 +56,7 @@ class ProfileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteProfile(profile: Profile) {
+        avatarImageStore.deleteAvatarFile(profile.avatarFilePath)
         profileDao.delete(profile.asEntity())
     }
 
@@ -67,4 +71,17 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun setTimerRestColor(profileId: Long, argb: Int) {
         profileDao.updateTimerRestColorArgb(profileId, argb)
     }
+
+    override suspend fun updateAvatarFromUri(profile: Profile, uri: Uri) {
+        val newPath = avatarImageStore.persistAvatarFrom(uri, profile.id) ?: return
+        avatarImageStore.deleteAvatarFile(profile.avatarFilePath)
+        profileDao.updateAvatarFilePath(profile.id, newPath)
+    }
+
+    override suspend fun updateAvatarPreset(profile: Profile, presetKey: String) {
+        avatarImageStore.deleteAvatarFile(profile.avatarFilePath)
+        profileDao.updateAvatarPreset(profile.id, presetKey)
+    }
+
+    override fun createAvatarCaptureUri(): Uri = avatarImageStore.createCaptureUri()
 }
