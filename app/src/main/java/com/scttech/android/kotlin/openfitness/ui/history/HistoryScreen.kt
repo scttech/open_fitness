@@ -1,5 +1,7 @@
 package com.scttech.android.kotlin.openfitness.ui.history
 
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -88,18 +90,18 @@ private fun SessionCard(session: WorkoutSession, modifier: Modifier = Modifier) 
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             session.result?.let { result ->
-                Text(resultSummary(result), style = MaterialTheme.typography.bodyLarge)
+                Text(resultSummary(result, LocalWeightUnit.current), style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
 }
 
-private fun resultSummary(result: SessionResult): String = when (result) {
+private fun resultSummary(result: SessionResult, unit: WeightUnit): String = when (result) {
     is SessionResult.TabataResult -> "${result.roundsCompleted} rounds · ${result.cyclesCompleted} cycles"
     is SessionResult.GreaseTheGrooveResult -> "${result.setsLogged.size} sets · ${result.setsLogged.sumOf { it.reps ?: 0 }} total reps"
     is SessionResult.PyramidResult -> "${result.setsLogged.size} sets · ${result.setsLogged.sumOf { it.reps ?: 0 }} total reps"
     is SessionResult.DensityResult -> "${result.roundsCompleted} rounds in ${result.elapsedSeconds / 60}m ${result.elapsedSeconds % 60}s"
-    is SessionResult.StepLoadingResult -> "${result.setsLogged.size} sets · top set ${result.setsLogged.maxOfOrNull { it.weightKg ?: 0.0 } ?: 0.0}kg"
+    is SessionResult.StepLoadingResult -> "${result.setsLogged.size} sets · top set ${unit.format(result.setsLogged.maxOfOrNull { it.weightKg ?: 0.0 } ?: 0.0)}"
     is SessionResult.EmomResult -> "${result.roundsCompleted} ${if (result.roundsCompleted == 1) "round" else "rounds"} completed"
     is SessionResult.FollowAlongResult -> "${result.exercisesCompleted} ${if (result.exercisesCompleted == 1) "exercise" else "exercises"} completed"
 }

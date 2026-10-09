@@ -1,6 +1,7 @@
 package com.scttech.android.kotlin.openfitness.ui.workout.builder
 
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyleConfig
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -41,8 +42,8 @@ class StyleFormFieldsTest {
     fun `step loading fields produce first exercise with target weight and reps`() {
         val fields = StyleFormFields.StepLoadingFields(
             exerciseName = "Back Squat",
-            startWeightKg = "40",
-            stepWeightKg = "10",
+            startWeight = "40",
+            stepWeight = "10",
             setCount = "5",
             repsPerSet = "5",
             deloadEverySessions = "",
@@ -107,5 +108,35 @@ class StyleFormFieldsTest {
         assertEquals("Air Squat", exercises[2].name)
         assertEquals(false, exercises[2].isRest)
         assertEquals(30, exercises[2].targetDurationSeconds)
+    }
+
+    @Test
+    fun `step loading weights entered in pounds are stored as kilograms`() {
+        val fields = StyleFormFields.StepLoadingFields(
+            exerciseName = "Back Squat",
+            startWeight = "135",
+            stepWeight = "10",
+            setCount = "5",
+            repsPerSet = "5",
+            deloadEverySessions = "",
+            restSeconds = "60",
+        )
+        val config = fields.toStyleConfig(WeightUnit.LBS) as WorkoutStyleConfig.StepLoading
+        assertEquals(61.235, config.startWeightKg, 0.001)
+        assertEquals(4.536, config.stepWeightKg, 0.001)
+        assertEquals(61.235, fields.toExercises(emptyList(), WeightUnit.LBS).first().targetWeightKg!!, 0.001)
+    }
+
+    @Test
+    fun `step loading config shows in the profile unit and round trips`() {
+        val config = WorkoutStyleConfig.StepLoading(
+            startWeightKg = 61.235, stepWeightKg = 4.536, setCount = 5, repsPerSet = 5,
+            deloadEverySessions = null, restSeconds = 60,
+        )
+        val fields = StyleFormFields.from(config, emptyList(), WeightUnit.LBS) as StyleFormFields.StepLoadingFields
+        assertEquals("135", fields.startWeight)
+        assertEquals("10", fields.stepWeight)
+        val kgFields = StyleFormFields.from(config, emptyList()) as StyleFormFields.StepLoadingFields
+        assertEquals("61.2", kgFields.startWeight)
     }
 }

@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.workout.builder
 
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyle
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyleConfig
@@ -46,8 +47,9 @@ sealed interface StyleFormFields {
 
     data class StepLoadingFields(
         val exerciseName: String,
-        val startWeightKg: String,
-        val stepWeightKg: String,
+        /** Entered in the profile's [WeightUnit], not necessarily kilograms. */
+        val startWeight: String,
+        val stepWeight: String,
         val setCount: String,
         val repsPerSet: String,
         val deloadEverySessions: String,
@@ -66,17 +68,24 @@ sealed interface StyleFormFields {
     ) : StyleFormFields
 
     companion object {
-        fun default(style: WorkoutStyle): StyleFormFields = when (style) {
+        fun default(style: WorkoutStyle, unit: WeightUnit = WeightUnit.KG): StyleFormFields = when (style) {
             WorkoutStyle.TABATA -> TabataFields("20", "10", "8", "1", "60")
             WorkoutStyle.GREASE_THE_GROOVE -> GtgFields("", "5", "10", "30")
             WorkoutStyle.PYRAMID -> PyramidFields("", WorkoutStyleConfig.PyramidDirection.UP_DOWN, "2", "2", "10", "60")
             WorkoutStyle.DENSITY -> DensityFields("15", "")
-            WorkoutStyle.STEP_LOADING -> StepLoadingFields("", "20", "5", "5", "5", "", "60")
+            WorkoutStyle.STEP_LOADING -> when (unit) {
+                WeightUnit.KG -> StepLoadingFields("", "20", "5", "5", "5", "", "60")
+                WeightUnit.LBS -> StepLoadingFields("", "45", "10", "5", "5", "", "60")
+            }
             WorkoutStyle.EMOM -> EmomFields("10", "3", "60")
             WorkoutStyle.FOLLOW_ALONG -> FollowAlongFields("15")
         }
 
-        fun from(config: WorkoutStyleConfig, exercises: List<WorkoutExercise>): StyleFormFields = when (config) {
+        fun from(
+            config: WorkoutStyleConfig,
+            exercises: List<WorkoutExercise>,
+            unit: WeightUnit = WeightUnit.KG,
+        ): StyleFormFields = when (config) {
             is WorkoutStyleConfig.Tabata -> TabataFields(
                 workSeconds = config.workSeconds.toString(),
                 restSeconds = config.restSeconds.toString(),
@@ -108,8 +117,8 @@ sealed interface StyleFormFields {
             is WorkoutStyleConfig.StepLoading -> StepLoadingFields(
                 exerciseName = exercises.firstOrNull()?.name.orEmpty(),
                 exerciseId = exercises.firstOrNull()?.exerciseId,
-                startWeightKg = config.startWeightKg.toString(),
-                stepWeightKg = config.stepWeightKg.toString(),
+                startWeight = unit.formatValue(config.startWeightKg),
+                stepWeight = unit.formatValue(config.stepWeightKg),
                 setCount = config.setCount.toString(),
                 repsPerSet = config.repsPerSet.toString(),
                 deloadEverySessions = config.deloadEverySessions?.toString().orEmpty(),
@@ -127,7 +136,7 @@ sealed interface StyleFormFields {
     }
 }
 
-fun StyleFormFields.toStyleConfig(): WorkoutStyleConfig = when (this) {
+fun StyleFormFields.toStyleConfig(unit: WeightUnit = WeightUnit.KG): WorkoutStyleConfig = when (this) {
     is StyleFormFields.TabataFields -> WorkoutStyleConfig.Tabata(
         workSeconds = workSeconds.toIntOrNull() ?: 20,
         restSeconds = restSeconds.toIntOrNull() ?: 10,
@@ -154,8 +163,8 @@ fun StyleFormFields.toStyleConfig(): WorkoutStyleConfig = when (this) {
         targetRounds = targetRounds.toIntOrNull(),
     )
     is StyleFormFields.StepLoadingFields -> WorkoutStyleConfig.StepLoading(
-        startWeightKg = startWeightKg.toDoubleOrNull() ?: 20.0,
-        stepWeightKg = stepWeightKg.toDoubleOrNull() ?: 5.0,
+        startWeightKg = startWeight.toDoubleOrNull()?.let(unit::toKg) ?: 20.0,
+        stepWeightKg = stepWeight.toDoubleOrNull()?.let(unit::toKg) ?: 5.0,
         setCount = setCount.toIntOrNull() ?: 5,
         repsPerSet = repsPerSet.toIntOrNull() ?: 5,
         deloadEverySessions = deloadEverySessions.toIntOrNull(),
@@ -186,7 +195,10 @@ fun StyleFormFields.singleExerciseName(): String? = when (this) {
     else -> null
 }
 
-fun StyleFormFields.toExercises(circuitExercises: List<CircuitExerciseField>): List<WorkoutExercise> = when (this) {
+fun StyleFormFields.toExercises(
+    circuitExercises: List<CircuitExerciseField>,
+    unit: WeightUnit = WeightUnit.KG,
+): List<WorkoutExercise> = when (this) {
     is StyleFormFields.TabataFields -> circuitExercises.mapIndexed { i, ex ->
         WorkoutExercise(order = i, name = ex.name, exerciseId = ex.exerciseId)
     }
@@ -206,7 +218,7 @@ fun StyleFormFields.toExercises(circuitExercises: List<CircuitExerciseField>): L
             name = exerciseName,
             exerciseId = exerciseId,
             targetReps = repsPerSet.toIntOrNull(),
-            targetWeightKg = startWeightKg.toDoubleOrNull(),
+            targetWeightKg = startWeight.toDoubleOrNull()?.let(unit::toKg),
         ),
     )
     // Follow Along's real exercises come from WorkoutBuilderUiState.Loaded.followAlongSteps

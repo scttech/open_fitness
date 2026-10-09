@@ -17,4 +17,6 @@ data class Profile(
     val avatarPresetKey: String? = null,
     /** Absolute path to a user-supplied avatar photo on disk. Mutually exclusive with [avatarPresetKey]. */
     val avatarFilePath: String? = null,
+    /** How this profile sees and enters weights; stored weights are always kilograms. */
+    val weightUnit: WeightUnit = WeightUnit.KG,
 )

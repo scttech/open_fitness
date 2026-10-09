@@ -8,12 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.ui.OpenFitnessApp
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
 import com.scttech.android.kotlin.openfitness.ui.theme.OpenFitnessTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -40,8 +43,11 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.DARK -> true
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
             }
+            val weightUnit by profileRepository.weightUnit.collectAsStateWithLifecycle(initialValue = WeightUnit.KG)
             OpenFitnessTheme(darkTheme = darkTheme) {
-                OpenFitnessApp()
+                CompositionLocalProvider(LocalWeightUnit provides weightUnit) {
+                    OpenFitnessApp()
+                }
             }
         }
     }

@@ -8,8 +8,10 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.asDomainModel
 import com.scttech.android.kotlin.openfitness.data.local.entity.asEntity
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -58,6 +60,13 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun deleteProfile(profile: Profile) {
         avatarImageStore.deleteAvatarFile(profile.avatarFilePath)
         profileDao.delete(profile.asEntity())
+    }
+
+    override val weightUnit: Flow<WeightUnit> =
+        observeCurrentProfile().map { it?.weightUnit ?: WeightUnit.KG }.distinctUntilChanged()
+
+    override suspend fun setWeightUnit(profileId: Long, unit: WeightUnit) {
+        profileDao.updateWeightUnit(profileId, unit.name)
     }
 
     override suspend fun setTimerSoundEnabled(profileId: Long, enabled: Boolean) {

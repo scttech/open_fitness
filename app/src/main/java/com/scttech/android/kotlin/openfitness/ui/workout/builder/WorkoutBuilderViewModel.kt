@@ -36,6 +36,7 @@ class WorkoutBuilderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val unit = profileRepository.weightUnit.first()
             if (route.workoutId != 0L) {
                 val workout = workoutRepository.observeWorkout(route.workoutId).first()
                 if (workout != null) {
@@ -55,7 +56,7 @@ class WorkoutBuilderViewModel @Inject constructor(
                                 seconds = (it.targetDurationSeconds ?: 30).toString(),
                             )
                         },
-                        fields = StyleFormFields.from(workout.styleConfig, workout.exercises),
+                        fields = StyleFormFields.from(workout.styleConfig, workout.exercises, unit),
                     )
                     return@launch
                 }
@@ -69,7 +70,7 @@ class WorkoutBuilderViewModel @Inject constructor(
                 notes = "",
                 circuitExercises = listOf(CircuitExerciseField()),
                 followAlongSteps = listOf(FollowAlongStepField(isRest = false)),
-                fields = StyleFormFields.default(style),
+                fields = StyleFormFields.default(style, unit),
             )
         }
     }
@@ -127,6 +128,7 @@ class WorkoutBuilderViewModel @Inject constructor(
         if (state !is WorkoutBuilderUiState.Loaded || !state.canSave) return
         viewModelScope.launch {
             val profileId = profileRepository.currentProfileId.filterNotNull().first()
+            val unit = profileRepository.weightUnit.first()
             val trimmedName = state.name.trim()
             if (workoutRepository.nameExists(profileId, trimmedName, state.workoutId)) {
                 _uiState.update {
@@ -137,14 +139,14 @@ class WorkoutBuilderViewModel @Inject constructor(
             val exercises = if (state.style == WorkoutStyle.FOLLOW_ALONG) {
                 state.followAlongSteps.toWorkoutExercises()
             } else {
-                state.fields.toExercises(state.circuitExercises.filter { it.name.isNotBlank() })
+                state.fields.toExercises(state.circuitExercises.filter { it.name.isNotBlank() }, unit)
             }
             val workout = Workout(
                 id = state.workoutId,
                 profileId = profileId,
                 name = trimmedName,
                 style = state.style,
-                styleConfig = state.fields.toStyleConfig(),
+                styleConfig = state.fields.toStyleConfig(unit),
                 exercises = exercises,
                 notes = state.notes,
                 isTemplate = false,

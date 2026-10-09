@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.ui.common.timer.timerColorPrefs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -63,6 +64,13 @@ class SettingsViewModel @Inject constructor(
     /** Clears the active profile so the profile picker doesn't immediately navigate back here. */
     suspend fun switchProfile() {
         profileRepository.setCurrentProfile(null)
+    }
+
+    fun setWeightUnit(unit: WeightUnit) {
+        viewModelScope.launch {
+            val profileId = profileRepository.currentProfileId.filterNotNull().first()
+            profileRepository.setWeightUnit(profileId, unit)
+        }
     }
 
     fun setTimerSoundEnabled(enabled: Boolean) {

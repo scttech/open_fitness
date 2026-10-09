@@ -1,5 +1,7 @@
 package com.scttech.android.kotlin.openfitness.ui.workout.detail
 
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -115,13 +117,13 @@ internal fun WorkoutDetailScreen(
                     HorizontalDivider()
 
                     Text("Plan", style = MaterialTheme.typography.titleLarge)
-                    Text(styleSummary(workout), style = MaterialTheme.typography.bodyLarge)
+                    Text(styleSummary(workout, LocalWeightUnit.current), style = MaterialTheme.typography.bodyLarge)
 
                     HorizontalDivider()
 
                     Text("Exercises", style = MaterialTheme.typography.titleLarge)
                     workout.exercises.sortedBy { it.order }.forEach { exercise ->
-                        val text = "• ${exercise.name}" + exerciseDetail(exercise)
+                        val text = "• ${exercise.name}" + exerciseDetail(exercise, LocalWeightUnit.current)
                         val exerciseId = exercise.exerciseId
                         if (exerciseId != null) {
                             Text(
@@ -167,18 +169,21 @@ internal fun WorkoutDetailScreen(
     }
 }
 
-private fun exerciseDetail(exercise: com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise): String {
+private fun exerciseDetail(
+    exercise: com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise,
+    unit: WeightUnit,
+): String {
     val parts = buildList {
         exercise.targetSets?.let { add("$it sets") }
         exercise.targetReps?.let { add("$it reps") }
-        exercise.targetWeightKg?.let { add("${it}kg") }
+        exercise.targetWeightKg?.let { add(unit.format(it)) }
         exercise.targetDurationSeconds?.let { add("${it}s") }
         exercise.targetDistanceMeters?.let { add("${it}m") }
     }
     return if (parts.isEmpty()) "" else " (${parts.joinToString(", ")})"
 }
 
-private fun styleSummary(workout: Workout): String = when (val config = workout.styleConfig) {
+private fun styleSummary(workout: Workout, unit: WeightUnit): String = when (val config = workout.styleConfig) {
     is WorkoutStyleConfig.Tabata -> buildString {
         append("${config.workSeconds}s work / ${config.restSeconds}s rest × ${config.roundsPerCycle} rounds")
         if (config.roundsPerCycle > 1) append(", ${config.restBetweenCyclesSeconds}s between rounds")
@@ -193,7 +198,7 @@ private fun styleSummary(workout: Workout): String = when (val config = workout.
     is WorkoutStyleConfig.Density ->
         "Max quality volume in ${config.durationMinutes} minutes" + (config.targetRounds?.let { ", target $it rounds" } ?: "")
     is WorkoutStyleConfig.StepLoading ->
-        "${config.setCount} sets × ${config.repsPerSet} reps, starting ${config.startWeightKg}kg +${config.stepWeightKg}kg/set" +
+        "${config.setCount} sets × ${config.repsPerSet} reps, starting ${unit.format(config.startWeightKg)} +${unit.format(config.stepWeightKg)}/set" +
             (config.deloadEverySessions?.let { ", deload every $it sessions" } ?: "")
     is WorkoutStyleConfig.Emom ->
         "60s per exercise × ${config.rounds} rounds, goal ${config.repGoal} reps, ${config.restBetweenRoundsSeconds}s rest between rounds"

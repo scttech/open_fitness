@@ -3,6 +3,7 @@ package com.scttech.android.kotlin.openfitness.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import kotlinx.datetime.Instant
 
 @Entity(tableName = "profiles")
@@ -16,6 +17,7 @@ data class ProfileEntity(
     val timerRestColorArgb: Int? = null,
     val avatarPresetKey: String? = null,
     val avatarFilePath: String? = null,
+    val weightUnit: String = "KG",
 )
 
 fun ProfileEntity.asDomainModel() = Profile(
@@ -28,6 +30,7 @@ fun ProfileEntity.asDomainModel() = Profile(
     timerRestColorArgb = timerRestColorArgb,
     avatarPresetKey = avatarPresetKey,
     avatarFilePath = avatarFilePath,
+    weightUnit = WeightUnit.fromName(weightUnit),
 )
 
 fun Profile.asEntity() = ProfileEntity(
@@ -40,4 +43,5 @@ fun Profile.asEntity() = ProfileEntity(
     timerRestColorArgb = timerRestColorArgb,
     avatarPresetKey = avatarPresetKey,
     avatarFilePath = avatarFilePath,
+    weightUnit = weightUnit.name,
 )

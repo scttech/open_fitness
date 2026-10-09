@@ -208,3 +208,13 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_badges_profileId_badgeKey` ON `badges` (`profileId`, `badgeKey`)")
     }
 }
+
+/**
+ * Lets each profile choose kg or lb for displaying and entering weights. Existing profiles default
+ * to kilograms, matching how everything was shown before; stored values stay in kilograms.
+ */
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `profiles` ADD COLUMN `weightUnit` TEXT NOT NULL DEFAULT 'KG'")
+    }
+}

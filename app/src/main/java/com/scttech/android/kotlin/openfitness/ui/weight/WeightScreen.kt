@@ -47,6 +47,7 @@ import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import com.scttech.android.kotlin.openfitness.domain.model.WeightEntry
 import com.scttech.android.kotlin.openfitness.ui.common.EmptyState
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
 import com.scttech.android.kotlin.openfitness.ui.common.TextInputDialog
 
 @Composable
@@ -74,6 +75,7 @@ internal fun WeightScreen(
     modifier: Modifier = Modifier,
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
+    val unit = LocalWeightUnit.current
 
     Scaffold(
         modifier = modifier,
@@ -113,10 +115,10 @@ internal fun WeightScreen(
     if (showAddDialog) {
         TextInputDialog(
             title = "Log weight",
-            label = "Weight (kg)",
+            label = "Weight (${unit.label})",
             confirmLabel = "Add",
             onConfirm = { value ->
-                value.toDoubleOrNull()?.let(onAddEntry)
+                value.toDoubleOrNull()?.let { onAddEntry(unit.toKg(it)) }
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false },
@@ -126,13 +128,14 @@ internal fun WeightScreen(
 
 @Composable
 private fun WeightChart(entries: List<WeightEntry>, modifier: Modifier = Modifier) {
+    val unit = LocalWeightUnit.current
     val sorted = remember(entries) { entries.sortedBy { it.date } }
     val modelProducer = remember { CartesianChartModelProducer() }
 
-    LaunchedEffect(sorted) {
+    LaunchedEffect(sorted, unit) {
         modelProducer.runTransaction {
             lineModel {
-                series(x = sorted.indices.toList(), y = sorted.map { it.weightKg })
+                series(x = sorted.indices.toList(), y = sorted.map { unit.fromKg(it.weightKg) })
             }
         }
     }
@@ -162,7 +165,7 @@ private fun WeightEntryRow(entry: WeightEntry, onDelete: () -> Unit, modifier: M
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("${entry.weightKg} kg", style = MaterialTheme.typography.titleLarge)
+                Text(LocalWeightUnit.current.format(entry.weightKg), style = MaterialTheme.typography.titleLarge)
                 Text(entry.date.toString(), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = onDelete) {

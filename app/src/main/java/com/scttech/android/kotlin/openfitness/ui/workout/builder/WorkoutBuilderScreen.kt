@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.workout.builder
 
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -315,17 +316,17 @@ private fun StyleFieldsForm(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
-                    value = fields.startWeightKg,
-                    onValueChange = { onFieldsChange(fields.copy(startWeightKg = it)) },
-                    label = { Text("Start weight (kg)") },
+                    value = fields.startWeight,
+                    onValueChange = { onFieldsChange(fields.copy(startWeight = it)) },
+                    label = { Text("Start weight (${LocalWeightUnit.current.label})") },
                     keyboardOptions = decimalOptions,
                     modifier = Modifier.weight(1f),
                     singleLine = true,
                 )
                 OutlinedTextField(
-                    value = fields.stepWeightKg,
-                    onValueChange = { onFieldsChange(fields.copy(stepWeightKg = it)) },
-                    label = { Text("Step (kg)") },
+                    value = fields.stepWeight,
+                    onValueChange = { onFieldsChange(fields.copy(stepWeight = it)) },
+                    label = { Text("Step (${LocalWeightUnit.current.label})") },
                     keyboardOptions = decimalOptions,
                     modifier = Modifier.weight(1f),
                     singleLine = true,

@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.ui.common.AvatarPickerDialog
 import com.scttech.android.kotlin.openfitness.ui.common.ConfirmDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
@@ -100,6 +101,7 @@ internal fun SettingsRoute(
         onTimerWorkColorChange = viewModel::setTimerWorkColor,
         onTimerRestColorChange = viewModel::setTimerRestColor,
         onThemeModeChange = viewModel::setThemeMode,
+        onWeightUnitChange = viewModel::setWeightUnit,
         onUpdateAvatarFromUri = viewModel::updateAvatarFromUri,
         onUpdateAvatarPreset = viewModel::updateAvatarPreset,
         onCreateAvatarCaptureUri = viewModel::createAvatarCaptureUri,
@@ -121,6 +123,7 @@ internal fun SettingsScreen(
     onTimerWorkColorChange: (Color) -> Unit,
     onTimerRestColorChange: (Color) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
+    onWeightUnitChange: (WeightUnit) -> Unit,
     onUpdateAvatarFromUri: (Profile, Uri) -> Unit,
     onUpdateAvatarPreset: (Profile, String) -> Unit,
     onCreateAvatarCaptureUri: () -> Uri,
@@ -162,6 +165,26 @@ internal fun SettingsScreen(
                         }
                     }
                     item { SettingsRow(icon = Icons.Filled.SwitchAccount, label = "Switch profile", onClick = onSwitchProfile) }
+
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Weight unit", style = MaterialTheme.typography.titleMedium)
+                                Spacer(Modifier.height(8.dp))
+                                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                                    WeightUnit.entries.forEachIndexed { index, unit ->
+                                        SegmentedButton(
+                                            selected = uiState.currentProfile.weightUnit == unit,
+                                            onClick = { onWeightUnitChange(unit) },
+                                            shape = SegmentedButtonDefaults.itemShape(index, WeightUnit.entries.size),
+                                        ) {
+                                            Text("${unit.displayName} (${unit.label})")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
 

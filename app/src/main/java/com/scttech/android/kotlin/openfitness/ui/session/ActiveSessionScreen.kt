@@ -1,5 +1,6 @@
 package com.scttech.android.kotlin.openfitness.ui.session
 
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -391,6 +392,7 @@ private fun SetLoggingSessionContent(
             modifier = if (exerciseId != null) Modifier.clickable { onExerciseClick(exerciseId) } else Modifier,
         )
         Text(state.targetDescription, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        val weightUnit = LocalWeightUnit.current
         if (totalSets != null) {
             Text("Set ${state.loggedSets.size + 1} of $totalSets", style = MaterialTheme.typography.labelLarge)
         }
@@ -407,7 +409,7 @@ private fun SetLoggingSessionContent(
             OutlinedTextField(
                 value = state.weightInput,
                 onValueChange = actions.onWeightInputChange,
-                label = { Text("Weight (kg, optional)") },
+                label = { Text("Weight (${weightUnit.label}, optional)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.weight(1f),
                 singleLine = true,
@@ -433,7 +435,7 @@ private fun SetLoggingSessionContent(
                         Text(
                             buildString {
                                 set.reps?.let { append("$it reps") }
-                                set.weightKg?.let { append(if (isNotEmpty()) " · ${it}kg" else "${it}kg") }
+                                set.weightKg?.let { append(if (isNotEmpty()) " · ${weightUnit.format(it)}" else weightUnit.format(it)) }
                             },
                         )
                     }

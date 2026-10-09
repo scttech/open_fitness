@@ -9,6 +9,7 @@ import com.scttech.android.kotlin.openfitness.data.repository.SessionRepository
 import com.scttech.android.kotlin.openfitness.data.repository.WorkoutRepository
 import com.scttech.android.kotlin.openfitness.domain.model.PerformedSet
 import com.scttech.android.kotlin.openfitness.domain.model.SessionResult
+import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.domain.model.Workout
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutSession
@@ -57,6 +58,9 @@ class ActiveSessionViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TimerColorPrefs())
 
     private lateinit var workout: Workout
+
+    /** Weight text fields are entered/shown in this unit; logged sets are always stored in kilograms. */
+    private var weightUnit = WeightUnit.KG
     private val startedAt = Clock.System.now()
 
     // Density-only running counter/ticker - a free-running stopwatch, not a phase timer.
@@ -100,6 +104,7 @@ class ActiveSessionViewModel @Inject constructor(
         viewModelScope.launch {
             val loaded = workoutRepository.observeWorkout(route.workoutId).first() ?: return@launch
             workout = loaded
+            weightUnit = profileRepository.weightUnit.first()
             _uiState.value = initialStateFor(loaded)
         }
         viewModelScope.launch {
@@ -194,7 +199,7 @@ class ActiveSessionViewModel @Inject constructor(
             nextSetTargetWeightKg = config.weightForSet(0),
             loggedSets = emptyList(),
             repsInput = config.repsPerSet.toString(),
-            weightInput = config.weightForSet(0).toString(),
+            weightInput = weightUnit.formatValue(config.weightForSet(0)),
             isFinished = false,
             totalSets = config.setCount,
         )
@@ -414,7 +419,7 @@ class ActiveSessionViewModel @Inject constructor(
             exerciseName = state.exerciseName,
             setIndex = nextIndex,
             reps = state.repsInput.toIntOrNull(),
-            weightKg = state.weightInput.toDoubleOrNull(),
+            weightKg = state.weightInput.toDoubleOrNull()?.let(weightUnit::toKg),
         )
         val loggedSets = state.loggedSets + newSet
         val totalSets = state.totalSets
@@ -428,7 +433,7 @@ class ActiveSessionViewModel @Inject constructor(
                     nextSetTargetReps = nextTarget.first,
                     nextSetTargetWeightKg = nextTarget.second,
                     repsInput = nextTarget.first?.toString() ?: state.repsInput,
-                    weightInput = nextTarget.second?.toString() ?: state.weightInput,
+                    weightInput = nextTarget.second?.let(weightUnit::formatValue) ?: state.weightInput,
                 )
             }
             val restSeconds = restSecondsFor(workout.styleConfig)
