@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -119,7 +119,8 @@ fun AvatarPickerDialog(
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(48.dp)
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
                                 .clip(CircleShape)
                                 .clickable {
                                     onPresetPicked(preset.key)

@@ -40,8 +40,10 @@ class ExerciseRepositoryImpl @Inject constructor(
     }
 
     override suspend fun seedExercisesIfNeeded() {
-        if (exerciseDao.count() == 0) {
-            exerciseDao.insertAll(StarterExercises.all().map { it.asEntity() })
+        val existingNames = exerciseDao.getAllNames().map { it.lowercase() }.toSet()
+        val missing = StarterExercises.all().filter { it.name.lowercase() !in existingNames }
+        if (missing.isNotEmpty()) {
+            exerciseDao.insertAll(missing.map { it.asEntity() })
         }
     }
 }

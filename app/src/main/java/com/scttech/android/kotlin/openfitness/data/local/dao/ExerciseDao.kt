@@ -23,6 +23,9 @@ interface ExerciseDao {
     @Query("SELECT COUNT(*) FROM exercises")
     suspend fun count(): Int
 
+    @Query("SELECT name FROM exercises")
+    suspend fun getAllNames(): List<String>
+
     @Insert
     suspend fun insert(exercise: ExerciseEntity): Long
 

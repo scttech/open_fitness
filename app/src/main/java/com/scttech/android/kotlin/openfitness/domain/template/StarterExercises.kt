@@ -206,6 +206,73 @@ object StarterExercises {
             createdAt = TEMPLATE_EPOCH,
         ),
         Exercise(
+            name = "Mace Uppercut",
+            category = ExerciseCategory.FULL_BODY,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Stand with the mace upright at one shoulder, hands staggered on the handle. Rotate through " +
+                "your hips and drive the head up and across your body like an uppercut, letting it travel back down " +
+                "under control before the next rep. Switch sides each set.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Barbarian Squat",
+            category = ExerciseCategory.LEGS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Hold the mace behind your head across your upper back, hands on the handle. Squat to " +
+                "depth with your chest tall, fighting the mace's pull to keep your torso upright.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Overhead Press",
+            category = ExerciseCategory.SHOULDERS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Hold the mace upright by the handle at your shoulder. Brace your core and press it " +
+                "straight overhead to lockout, resisting the tip's tendency to tilt, then lower under control.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Reverse Lunge",
+            category = ExerciseCategory.LEGS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Hold the mace vertically at chest height. Step back into a lunge until your back knee " +
+                "nearly touches the floor, keeping the mace steady and your torso tall, then drive back to standing.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Shield Cast",
+            category = ExerciseCategory.SHOULDERS,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Start with the mace hanging behind your back. Swing it up and over one shoulder to the " +
+                "front, then continue the circle back down the other side, keeping the motion fluid and your " +
+                "core braced.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Single-Arm Swing",
+            category = ExerciseCategory.FULL_BODY,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Grip near the end of the handle with one hand. Swing the mace in a controlled arc from " +
+                "shoulder to shoulder across your body, driving with your hips and letting the head lead the motion.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Russian Twist",
+            category = ExerciseCategory.CORE,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Sit with knees bent and torso leaned back, holding the mace by the handle at your chest. " +
+                "Rotate side to side, lowering the head beside each hip while keeping your chest up.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Mace Good Morning",
+            category = ExerciseCategory.BACK,
+            equipment = ExerciseEquipment.MACE,
+            formNotes = "Hold the mace across your upper back or behind your head. Hinge at the hips with a flat " +
+                "spine and soft knees until your torso is near parallel to the floor, then drive your hips forward " +
+                "to stand.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
             name = "Stretching / Mobility Flow",
             category = ExerciseCategory.MOBILITY,
             equipment = ExerciseEquipment.OTHER,
@@ -801,6 +868,86 @@ object StarterExercises {
             equipment = ExerciseEquipment.KETTLEBELL,
             formNotes = "Hike the bell back, then drive your hips forward explosively to pull it in one motion " +
                 "straight overhead, punching your hand through at the top to lock it out.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Goblet Squat",
+            category = ExerciseCategory.LEGS,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Hold the bell by the horns at chest height, elbows pointing down. Squat between your knees " +
+                "to full depth with your chest tall, then drive back up through mid-foot.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Deadlift",
+            category = ExerciseCategory.BACK,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Bell between your feet, hips back, flat spine. Push the floor away and stand tall, " +
+                "squeezing your glutes at the top, then hinge back down under control.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Press",
+            category = ExerciseCategory.SHOULDERS,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Rack the bell at your shoulder with your wrist straight. Brace your core and glutes, press " +
+                "straight overhead until the arm is locked out beside your ear, then lower back to the rack.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Clean and Press",
+            category = ExerciseCategory.FULL_BODY,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Clean the bell to the rack position, pause to settle it, then press overhead to lockout. " +
+                "Lower back to the rack and reset before the next rep.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Thruster",
+            category = ExerciseCategory.FULL_BODY,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Hold one or two bells in the rack position. Squat to full depth, then use the upward drive " +
+                "to press the bells overhead in one continuous motion.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Row",
+            category = ExerciseCategory.BACK,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Hinge forward with a flat back, bell hanging below your shoulder. Row it to your hip, " +
+                "driving the elbow back and squeezing your shoulder blade, then lower under control.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Halo",
+            category = ExerciseCategory.SHOULDERS,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Hold the bell upside down by the horns at chest height. Circle it around your head, keeping " +
+                "it close and your ribs down, then reverse direction each set.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Farmer's Carry",
+            category = ExerciseCategory.CORE,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Hold a bell in each hand at your sides. Stand tall with shoulders back and walk with short, " +
+                "controlled steps without leaning or letting the bells swing.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Russian Twist",
+            category = ExerciseCategory.CORE,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Sit with knees bent and torso leaned back, holding the bell at your chest. Rotate your " +
+                "torso side to side, tapping the bell beside each hip while keeping your chest up.",
+            createdAt = TEMPLATE_EPOCH,
+        ),
+        Exercise(
+            name = "Kettlebell Lunge",
+            category = ExerciseCategory.LEGS,
+            equipment = ExerciseEquipment.KETTLEBELL,
+            formNotes = "Hold the bell in the goblet or rack position. Step into a lunge until your back knee " +
+                "nearly touches the floor, front knee over your ankle, then push back to standing.",
             createdAt = TEMPLATE_EPOCH,
         ),
         Exercise(
