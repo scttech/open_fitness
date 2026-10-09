@@ -80,4 +80,8 @@ Hope you enjoy it!
 <td><img src="docs/screenshots/stats-light.png" width="220" alt="Stats, light theme"></td>
 <td><img src="docs/screenshots/stats-dark.png" width="220" alt="Stats, dark theme"></td>
 </tr>
+<tr>
+<td><img src="docs/screenshots/badges-light.png" width="220" alt="Badges, light theme"></td>
+<td><img src="docs/screenshots/badges-dark.png" width="220" alt="Badges, dark theme"></td>
+</tr>
 </table>

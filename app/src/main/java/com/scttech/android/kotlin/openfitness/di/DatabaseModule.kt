@@ -3,6 +3,7 @@ package com.scttech.android.kotlin.openfitness.di
 import android.content.Context
 import androidx.room.Room
 import com.scttech.android.kotlin.openfitness.data.local.OpenFitnessDatabase
+import com.scttech.android.kotlin.openfitness.data.local.dao.BadgeDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.ExerciseDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.ProfileDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.ProgramDao
@@ -15,6 +16,7 @@ import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_1_2
 import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_2_3
 import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_3_4
 import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_4_5
+import com.scttech.android.kotlin.openfitness.data.local.migration.MIGRATION_5_6
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,7 +32,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): OpenFitnessDatabase =
         Room.databaseBuilder(context, OpenFitnessDatabase::class.java, OpenFitnessDatabase.DATABASE_NAME)
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
 
     @Provides
@@ -56,4 +58,7 @@ object DatabaseModule {
 
     @Provides
     fun provideProgramSessionDao(database: OpenFitnessDatabase): ProgramSessionDao = database.programSessionDao()
+
+    @Provides
+    fun provideBadgeDao(database: OpenFitnessDatabase): BadgeDao = database.badgeDao()
 }

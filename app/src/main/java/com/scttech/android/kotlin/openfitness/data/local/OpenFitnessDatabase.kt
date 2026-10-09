@@ -3,6 +3,7 @@ package com.scttech.android.kotlin.openfitness.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.scttech.android.kotlin.openfitness.data.local.dao.BadgeDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.ExerciseDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.ProfileDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.ProgramDao
@@ -11,6 +12,7 @@ import com.scttech.android.kotlin.openfitness.data.local.dao.ProgramTestDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.WeightEntryDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.WorkoutDao
 import com.scttech.android.kotlin.openfitness.data.local.dao.WorkoutSessionDao
+import com.scttech.android.kotlin.openfitness.data.local.entity.BadgeEntity
 import com.scttech.android.kotlin.openfitness.data.local.entity.ExerciseEntity
 import com.scttech.android.kotlin.openfitness.data.local.entity.ProfileEntity
 import com.scttech.android.kotlin.openfitness.data.local.entity.ProgramEntity
@@ -30,8 +32,9 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.WorkoutSessionEn
         ProgramEntity::class,
         ProgramTestEntity::class,
         ProgramSessionEntity::class,
+        BadgeEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -44,6 +47,7 @@ abstract class OpenFitnessDatabase : RoomDatabase() {
     abstract fun programDao(): ProgramDao
     abstract fun programTestDao(): ProgramTestDao
     abstract fun programSessionDao(): ProgramSessionDao
+    abstract fun badgeDao(): BadgeDao
 
     companion object {
         const val DATABASE_NAME = "openfitness.db"

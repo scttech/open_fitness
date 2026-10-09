@@ -1,5 +1,7 @@
 package com.scttech.android.kotlin.openfitness.di
 
+import com.scttech.android.kotlin.openfitness.data.repository.BadgeRepository
+import com.scttech.android.kotlin.openfitness.data.repository.BadgeRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
@@ -43,4 +45,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindProgramSessionRepository(impl: ProgramSessionRepositoryImpl): ProgramSessionRepository
+
+    @Binds
+    abstract fun bindBadgeRepository(impl: BadgeRepositoryImpl): BadgeRepository
 }

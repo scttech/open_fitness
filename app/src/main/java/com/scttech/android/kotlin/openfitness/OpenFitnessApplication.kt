@@ -6,6 +6,7 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.scttech.android.kotlin.openfitness.data.badge.BadgeAwarder
 import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepository
 import com.scttech.android.kotlin.openfitness.data.repository.WorkoutRepository
 import com.scttech.android.kotlin.openfitness.di.ApplicationScope
@@ -24,6 +25,8 @@ class OpenFitnessApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var exerciseRepository: ExerciseRepository
 
+    @Inject lateinit var badgeAwarder: BadgeAwarder
+
     @Inject lateinit var hiltWorkerFactory: HiltWorkerFactory
 
     @Inject
@@ -39,6 +42,7 @@ class OpenFitnessApplication : Application(), Configuration.Provider {
             workoutRepository.seedTemplatesIfNeeded()
             exerciseRepository.seedExercisesIfNeeded()
         }
+        badgeAwarder.start()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             RETEST_REMINDER_WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,

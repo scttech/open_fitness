@@ -24,6 +24,9 @@ data object WeightRoute
 data object StatsRoute
 
 @Serializable
+data object BadgesRoute
+
+@Serializable
 data object TemplateBrowserRoute
 
 @Serializable

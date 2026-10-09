@@ -5,11 +5,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
+import com.scttech.android.kotlin.openfitness.ui.badges.BadgeAnnouncerViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -23,7 +29,14 @@ import com.scttech.android.kotlin.openfitness.ui.navigation.TopLevelDestination
 import com.scttech.android.kotlin.openfitness.ui.navigation.WorkoutsRoute
 
 @Composable
-fun OpenFitnessApp() {
+fun OpenFitnessApp(badgeAnnouncer: BadgeAnnouncerViewModel = hiltViewModel()) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(badgeAnnouncer) {
+        badgeAnnouncer.newlyEarned.collect { badge ->
+            snackbarHostState.showSnackbar("Badge earned: ${badge.displayName}")
+        }
+    }
+
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
@@ -33,6 +46,7 @@ fun OpenFitnessApp() {
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {

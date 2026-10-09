@@ -186,3 +186,25 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         db.execSQL("ALTER TABLE `profiles` ADD COLUMN `avatarFilePath` TEXT")
     }
 }
+
+/**
+ * Adds the `badges` table recording which achievements each profile has earned. Existing profiles
+ * start empty; [com.scttech.android.kotlin.openfitness.data.badge.BadgeAwarder] backfills from
+ * their history on next launch.
+ */
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `badges` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `profileId` INTEGER NOT NULL,
+                `badgeKey` TEXT NOT NULL,
+                `earnedAtEpochMillis` INTEGER NOT NULL,
+                FOREIGN KEY(`profileId`) REFERENCES `profiles`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_badges_profileId_badgeKey` ON `badges` (`profileId`, `badgeKey`)")
+    }
+}

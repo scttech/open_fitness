@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MonitorWeight
 import androidx.compose.material.icons.filled.SwitchAccount
+import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Check
@@ -71,6 +72,7 @@ internal fun SettingsRoute(
     onHistoryClick: () -> Unit,
     onWeightClick: () -> Unit,
     onStatsClick: () -> Unit,
+    onBadgesClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -93,6 +95,7 @@ internal fun SettingsRoute(
         onHistoryClick = onHistoryClick,
         onWeightClick = onWeightClick,
         onStatsClick = onStatsClick,
+        onBadgesClick = onBadgesClick,
         onTimerSoundEnabledChange = viewModel::setTimerSoundEnabled,
         onTimerWorkColorChange = viewModel::setTimerWorkColor,
         onTimerRestColorChange = viewModel::setTimerRestColor,
@@ -113,6 +116,7 @@ internal fun SettingsScreen(
     onHistoryClick: () -> Unit,
     onWeightClick: () -> Unit,
     onStatsClick: () -> Unit,
+    onBadgesClick: () -> Unit,
     onTimerSoundEnabledChange: (Boolean) -> Unit,
     onTimerWorkColorChange: (Color) -> Unit,
     onTimerRestColorChange: (Color) -> Unit,
@@ -188,6 +192,7 @@ internal fun SettingsScreen(
                     item { SettingsRow(icon = Icons.Filled.History, label = "History", onClick = onHistoryClick) }
                     item { SettingsRow(icon = Icons.Filled.MonitorWeight, label = "Body Weight", onClick = onWeightClick) }
                     item { SettingsRow(icon = Icons.Filled.Assessment, label = "Stats", onClick = onStatsClick) }
+                    item { SettingsRow(icon = Icons.Filled.WorkspacePremium, label = "Badges", onClick = onBadgesClick) }
 
                     item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
 

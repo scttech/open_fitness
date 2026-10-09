@@ -17,6 +17,7 @@ import com.scttech.android.kotlin.openfitness.ui.program.list.ProgramListRoute a
 import com.scttech.android.kotlin.openfitness.ui.program.session.ActiveProgramSessionRoute as ActiveProgramSessionRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.program.testcheckin.ProgramTestCheckInRoute as ProgramTestCheckInRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.session.ActiveSessionRoute as ActiveSessionRouteScreen
+import com.scttech.android.kotlin.openfitness.ui.badges.BadgesRoute as BadgesRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.settings.SettingsRoute as SettingsRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.stats.StatsRoute as StatsRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.weight.WeightRoute as WeightRouteScreen
@@ -184,7 +185,10 @@ fun OpenFitnessNavHost(
                 onHistoryClick = { navController.navigate(HistoryRoute) },
                 onWeightClick = { navController.navigate(WeightRoute) },
                 onStatsClick = { navController.navigate(StatsRoute) },
+                onBadgesClick = { navController.navigate(BadgesRoute) },
             )
         }
+
+        composable<BadgesRoute> { BadgesRouteScreen(onBackClick = { navController.popBackStack() }) }
     }
 }
