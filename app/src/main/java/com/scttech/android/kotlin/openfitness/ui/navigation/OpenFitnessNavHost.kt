@@ -12,6 +12,7 @@ import com.scttech.android.kotlin.openfitness.ui.history.HistoryRoute as History
 import com.scttech.android.kotlin.openfitness.ui.profile.ProfileRoute as ProfileRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.program.builder.ProgramBuilderRoute as ProgramBuilderRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.program.detail.ProgramDetailRoute as ProgramDetailRouteScreen
+import com.scttech.android.kotlin.openfitness.ui.program.history.ProgramHistoryRoute as ProgramHistoryRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.program.list.ProgramListRoute as ProgramListRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.program.session.ActiveProgramSessionRoute as ActiveProgramSessionRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.program.testcheckin.ProgramTestCheckInRoute as ProgramTestCheckInRouteScreen
@@ -150,9 +151,14 @@ fun OpenFitnessNavHost(
                 onBackClick = { navController.popBackStack() },
                 onEditClick = { id -> navController.navigate(ProgramBuilderRoute(programId = id)) },
                 onRecordTest = { id -> navController.navigate(ProgramTestCheckInRoute(id)) },
+                onHistoryClick = { id -> navController.navigate(ProgramHistoryRoute(id)) },
                 onStartSession = { id -> navController.navigate(ActiveProgramSessionRoute(id)) },
                 onDeleted = { navController.popBackStack() },
             )
+        }
+
+        composable<ProgramHistoryRoute> {
+            ProgramHistoryRouteScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable<ProgramTestCheckInRoute> {

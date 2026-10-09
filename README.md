@@ -61,6 +61,10 @@ Hope you enjoy it!
 <td><img src="docs/screenshots/program-session-dark.png" width="220" alt="Active program session, dark theme"></td>
 </tr>
 <tr>
+<td><img src="docs/screenshots/program-history-light.png" width="220" alt="Program history charts, light theme"></td>
+<td><img src="docs/screenshots/program-history-dark.png" width="220" alt="Program history charts, dark theme"></td>
+</tr>
+<tr>
 <td><img src="docs/screenshots/settings-light.png" width="220" alt="Settings, light theme"></td>
 <td><img src="docs/screenshots/settings-dark.png" width="220" alt="Settings, dark theme"></td>
 </tr>

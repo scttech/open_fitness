@@ -63,6 +63,9 @@ data class ProgramDetailRoute(val programId: Long)
 data class ProgramTestCheckInRoute(val programId: Long)
 
 @Serializable
+data class ProgramHistoryRoute(val programId: Long)
+
+@Serializable
 data class ActiveProgramSessionRoute(val programId: Long)
 
 @Serializable

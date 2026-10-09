@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
@@ -43,6 +44,7 @@ internal fun ProgramDetailRoute(
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onRecordTest: (Long) -> Unit,
+    onHistoryClick: (Long) -> Unit,
     onStartSession: (Long) -> Unit,
     onDeleted: () -> Unit,
     modifier: Modifier = Modifier,
@@ -59,6 +61,7 @@ internal fun ProgramDetailRoute(
         onBackClick = onBackClick,
         onEditClick = onEditClick,
         onRecordTest = onRecordTest,
+        onHistoryClick = onHistoryClick,
         onStartSession = onStartSession,
         onDeleteClick = viewModel::deleteProgram,
         modifier = modifier,
@@ -71,6 +74,7 @@ internal fun ProgramDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onRecordTest: (Long) -> Unit,
+    onHistoryClick: (Long) -> Unit,
     onStartSession: (Long) -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -173,6 +177,10 @@ internal fun ProgramDetailScreen(
                     OutlinedButton(onClick = { onRecordTest(program.id) }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Filled.Timeline, contentDescription = null)
                         Text("Record a test")
+                    }
+                    OutlinedButton(onClick = { onHistoryClick(program.id) }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Filled.BarChart, contentDescription = null)
+                        Text("History")
                     }
                 }
             }
