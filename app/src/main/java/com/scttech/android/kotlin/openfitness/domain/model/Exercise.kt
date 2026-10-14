@@ -12,6 +12,7 @@ enum class ExerciseCategory(val displayName: String) {
     FULL_BODY("Full Body"),
     CARDIO("Cardio"),
     MOBILITY("Mobility"),
+    MARTIAL_ARTS("Martial Arts"),
 }
 
 enum class ExerciseEquipment(val displayName: String) {
@@ -22,6 +23,7 @@ enum class ExerciseEquipment(val displayName: String) {
     MACE("Steel Mace"),
     MACHINE("Machine"),
     BAND("Band"),
+    GRAPPLING_DUMMY("BJJ Dummy"),
     CARDIO_MACHINE("Cardio Machine"),
     OTHER("Other"),
 }

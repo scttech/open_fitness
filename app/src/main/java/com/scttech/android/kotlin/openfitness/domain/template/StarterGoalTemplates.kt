@@ -19,7 +19,7 @@ internal object StarterGoalTemplates {
 
     private val entries: List<Pair<TemplateCategory, Workout>> by lazy {
         boneHealth() + fatLoss() + muscleGain() + strength() + conditioning() + mobility() + backPosture() +
-            balanceAging() + general()
+            balanceAging() + martialArts() + general()
     }
 
     private fun template(
@@ -370,6 +370,100 @@ internal object StarterGoalTemplates {
                 "Wall Push-Up" to 40,
             ),
             "Raises your heart rate without jumping, easy on the knees, hips and back. Ideal for joint issues or a gentle return to exercise.",
+        ),
+    )
+
+    // ---- Martial arts: solo BJJ drills and grappling-dummy work ----
+    private fun martialArts() = listOf(
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Solo Movement Warm-Up",
+            WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            followAlongSequence(
+                "Hip Escape (Shrimp)" to 45, "Rest" to 15,
+                "Technical Stand-Up" to 45, "Rest" to 15,
+                "Bridge and Roll (Upa)" to 45, "Rest" to 15,
+                "Granby Roll" to 45, "Rest" to 15,
+                "Leg Pummeling" to 45, "Rest" to 15,
+                "Forward and Backward Break-Fall Roll" to 45,
+            ),
+            "A solo warm-up before class or a dummy session: shrimps, stand-ups, bridges and rolls. Use a mat, move slowly and focus on smooth technique.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Dummy Flow: Passing & Control",
+            WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            followAlongSequence(
+                "Dummy Guard Pass" to 60, "Rest" to 15,
+                "Dummy Knee Slide Pass" to 60, "Rest" to 15,
+                "Dummy Side Control Transition" to 60, "Rest" to 15,
+                "Dummy Mount Transition" to 60, "Rest" to 15,
+                "Dummy Back Take" to 60, "Rest" to 15,
+                "Dummy Rear Naked Choke Drill" to 60,
+            ),
+            "A technical skills round on a grappling dummy: pass, control, take the back. Each drill is one minute, so keep moving between positions. Repeat for two or three rounds.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Dummy Submission Practice",
+            WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 20),
+            followAlongSequence(
+                "Dummy Mount Transition" to 45, "Rest" to 15,
+                "Dummy Armbar Drill" to 60, "Rest" to 20,
+                "Dummy Triangle Setup" to 60, "Rest" to 20,
+                "Dummy Back Take" to 45, "Rest" to 15,
+                "Dummy Rear Naked Choke Drill" to 60,
+            ),
+            "Chain positions into finishes on the dummy: mount to armbar, guard to triangle, back to choke. Finish each submission with control, and switch sides each round.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Dummy Cardio Tabata",
+            WorkoutStyleConfig.Tabata(workSeconds = 20, restSeconds = 10, roundsPerCycle = 4, cycles = 2, restBetweenCyclesSeconds = 60),
+            listOf(
+                WorkoutExercise(order = 0, name = "Dummy Sprawl and Reshoot"),
+                WorkoutExercise(order = 1, name = "Dummy Guard Pull Burpee"),
+                WorkoutExercise(order = 2, name = "Dummy Bear Hug Squat"),
+                WorkoutExercise(order = 3, name = "Dummy Ground-and-Pound Posture Drill"),
+            ),
+            "A high-intensity cardio round built around the dummy: 20s on, 10s off, 4 exercises, 2 rounds with a minute between them. Go hard but keep your technique clean.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Dummy Round Conditioning",
+            WorkoutStyleConfig.Emom(repGoal = 6, rounds = 5, restBetweenRoundsSeconds = 60),
+            listOf(
+                WorkoutExercise(order = 0, name = "Dummy Takedown Shot"),
+                WorkoutExercise(order = 1, name = "Dummy Fireman's Carry"),
+                WorkoutExercise(order = 2, name = "Dummy Sprawl and Reshoot"),
+            ),
+            "Each minute, do the three dummy movements for the rep goal and rest what's left. Simulates the bursts of a hard roll. Reduce the rep goal if form gets sloppy.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Dummy Grip & Carry Density",
+            WorkoutStyleConfig.Density(durationMinutes = 15, targetRounds = null),
+            listOf(
+                WorkoutExercise(order = 0, name = "Dummy Drag and Carry"),
+                WorkoutExercise(order = 1, name = "Dummy Bear Hug Squat"),
+                WorkoutExercise(order = 2, name = "Dummy Guard Pass"),
+                WorkoutExercise(order = 3, name = "Dummy Sprawl and Reshoot"),
+            ),
+            "Fit in as many quality rounds as you can in 15 minutes. Builds the grip, leg and trunk endurance needed for long rounds on the mat.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Takedown Entry Reps",
+            WorkoutStyleConfig.Pyramid(direction = WorkoutStyleConfig.PyramidDirection.UP_DOWN, startReps = 2, stepReps = 2, peakReps = 10, restSeconds = 30),
+            listOf(
+                WorkoutExercise(order = 0, name = "Dummy Takedown Shot"),
+            ),
+            "2-4-6-8-10-8-6-4-2 double-leg entries on the dummy, resting as needed between sets. Focus on a deep level change and a strong finish.",
+        ),
+        template(
+            TemplateCategory.MARTIAL_ARTS, "BJJ Solo Core & Hips",
+            WorkoutStyleConfig.FollowAlong(defaultRestSeconds = 15),
+            followAlongSequence(
+                "Hip Escape (Shrimp)" to 40, "Rest" to 15,
+                "Guard Walk Sit-Up" to 40, "Rest" to 15,
+                "Bridge and Roll (Upa)" to 40, "Rest" to 15,
+                "Leg Pummeling" to 40, "Rest" to 15,
+                "Dummy Ground-and-Pound Posture Drill" to 40,
+            ),
+            "Builds the hip mobility and core strength that grappling demands, mostly with no equipment. The last drill needs the dummy; replace with a sit-up if you don't have one.",
         ),
     )
 

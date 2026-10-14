@@ -1,6 +1,19 @@
 package com.scttech.android.kotlin.openfitness.ui.workout.templates
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.navigationBarsPadding
+import com.scttech.android.kotlin.openfitness.ui.common.LocalWeightUnit
+import com.scttech.android.kotlin.openfitness.ui.workout.detail.exerciseDetail
+import com.scttech.android.kotlin.openfitness.ui.workout.detail.styleSummary
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -69,6 +82,19 @@ internal fun TemplateBrowserScreen(
     onCategorySelected: (TemplateCategory?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var previewTemplate by remember { mutableStateOf<Workout?>(null) }
+
+    previewTemplate?.let { template ->
+        TemplatePreviewSheet(
+            template = template,
+            onDismiss = { previewTemplate = null },
+            onUseTemplate = {
+                previewTemplate = null
+                onUseTemplate(template)
+            },
+        )
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -131,7 +157,11 @@ internal fun TemplateBrowserScreen(
                                 CategoryHeader(group.category)
                             }
                             items(group.templates, key = { it.id }) { template ->
-                                TemplateCard(template = template, onUseTemplate = { onUseTemplate(template) })
+                                TemplateCard(
+                                    template = template,
+                                    onClick = { previewTemplate = template },
+                                    onUseTemplate = { onUseTemplate(template) },
+                                )
                             }
                         }
                     }
@@ -156,10 +186,11 @@ private fun CategoryHeader(category: TemplateCategory, modifier: Modifier = Modi
 @Composable
 private fun TemplateCard(
     template: Workout,
+    onClick: () -> Unit,
     onUseTemplate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(modifier = modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(template.style.displayName, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             Text(template.name, style = MaterialTheme.typography.titleLarge)
@@ -168,6 +199,8 @@ private fun TemplateCard(
                     template.notes,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
             }
             Row(
@@ -175,7 +208,53 @@ private fun TemplateCard(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                Text(
+                    "Tap for details",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
                 Button(onClick = onUseTemplate) { Text("Add to my workouts") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TemplatePreviewSheet(
+    template: Workout,
+    onDismiss: () -> Unit,
+    onUseTemplate: () -> Unit,
+) {
+    val unit = LocalWeightUnit.current
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(template.style.displayName, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(template.name, style = MaterialTheme.typography.headlineSmall)
+            if (template.notes.isNotBlank()) {
+                Text(template.notes, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            HorizontalDivider()
+            Text("Plan", style = MaterialTheme.typography.titleMedium)
+            Text(styleSummary(template, unit), style = MaterialTheme.typography.bodyLarge)
+
+            HorizontalDivider()
+            Text("Exercises", style = MaterialTheme.typography.titleMedium)
+            template.exercises.sortedBy { it.order }.forEach { exercise ->
+                Text("• ${exercise.name}" + exerciseDetail(exercise, unit), style = MaterialTheme.typography.bodyLarge)
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Close") }
+                Button(onClick = onUseTemplate, modifier = Modifier.weight(1f)) { Text("Add to my workouts") }
             }
         }
     }

@@ -29,6 +29,12 @@ enum class TemplateCategory(val displayName: String, val description: String) {
         displayName = "Cardio & Conditioning",
         description = "Build heart and lung fitness, from gentle walk-jog intervals to all-out sprints.",
     ),
+    MARTIAL_ARTS(
+        displayName = "Martial Arts",
+        description = "Solo Brazilian jiu-jitsu training: movement drills and conditioning on your own, and " +
+            "technique and cardio rounds with a grappling dummy. Drill slowly first and add speed as the " +
+            "movements get smooth. Not a replacement for training with a qualified coach and partners.",
+    ),
     MOBILITY(
         displayName = "Mobility & Recovery",
         description = "Stretching and movement prep for warm-ups, cool-downs and rest days.",

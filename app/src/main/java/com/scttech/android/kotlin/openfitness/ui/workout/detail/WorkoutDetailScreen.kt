@@ -176,7 +176,7 @@ internal fun WorkoutDetailScreen(
     }
 }
 
-private fun exerciseDetail(
+internal fun exerciseDetail(
     exercise: com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise,
     unit: WeightUnit,
 ): String {
@@ -190,7 +190,7 @@ private fun exerciseDetail(
     return if (parts.isEmpty()) "" else " (${parts.joinToString(", ")})"
 }
 
-private fun styleSummary(workout: Workout, unit: WeightUnit): String = when (val config = workout.styleConfig) {
+internal fun styleSummary(workout: Workout, unit: WeightUnit): String = when (val config = workout.styleConfig) {
     is WorkoutStyleConfig.Tabata -> buildString {
         append("${config.workSeconds}s work / ${config.restSeconds}s rest × ${config.roundsPerCycle} rounds")
         if (config.roundsPerCycle > 1) append(", ${config.restBetweenCyclesSeconds}s between rounds")
