@@ -218,3 +218,90 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         db.execSQL("ALTER TABLE `profiles` ADD COLUMN `weightUnit` TEXT NOT NULL DEFAULT 'KG'")
     }
 }
+
+/**
+ * Adds the calendar: user-scheduled events (one-off or recurring) plus the program days a user
+ * has moved off the calendar. Program workout/test days themselves are projected from each
+ * program's weekly schedule rather than stored.
+ */
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `scheduled_events` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `profileId` INTEGER NOT NULL,
+                `kind` TEXT NOT NULL,
+                `title` TEXT NOT NULL,
+                `workoutId` INTEGER,
+                `programId` INTEGER,
+                `dateEpochDay` INTEGER NOT NULL,
+                `startMinutes` INTEGER,
+                `notes` TEXT NOT NULL,
+                `reminderMinutesBefore` INTEGER,
+                `repeatDays` TEXT NOT NULL,
+                `repeatUntilEpochDay` INTEGER,
+                `completedEpochDays` TEXT NOT NULL,
+                `skippedEpochDays` TEXT NOT NULL,
+                FOREIGN KEY(`profileId`) REFERENCES `profiles`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE,
+                FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL,
+                FOREIGN KEY(`programId`) REFERENCES `programs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_scheduled_events_profileId` ON `scheduled_events` (`profileId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_scheduled_events_workoutId` ON `scheduled_events` (`workoutId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_scheduled_events_programId` ON `scheduled_events` (`programId`)")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `program_day_skips` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `profileId` INTEGER NOT NULL,
+                `programId` INTEGER NOT NULL,
+                `dateEpochDay` INTEGER NOT NULL,
+                FOREIGN KEY(`profileId`) REFERENCES `profiles`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE,
+                FOREIGN KEY(`programId`) REFERENCES `programs`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_program_day_skips_profileId` ON `program_day_skips` (`profileId`)")
+        db.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_program_day_skips_programId_dateEpochDay` " +
+                "ON `program_day_skips` (`programId`, `dateEpochDay`)",
+        )
+    }
+}
+
+/** Adds the Message Center's short-lived copies of sent alerts. */
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `messages` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `profileId` INTEGER NOT NULL,
+                `dedupeKey` TEXT NOT NULL,
+                `title` TEXT NOT NULL,
+                `body` TEXT NOT NULL,
+                `createdAtEpochMillis` INTEGER NOT NULL,
+                `isRead` INTEGER NOT NULL,
+                `destinationType` TEXT,
+                `destinationId` INTEGER,
+                FOREIGN KEY(`profileId`) REFERENCES `profiles`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_messages_profileId` ON `messages` (`profileId`)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_messages_dedupeKey` ON `messages` (`dedupeKey`)")
+    }
+}
+
+/**
+ * Lets each profile choose when countdown tick sounds start. Existing profiles move to 5 seconds,
+ * down from the previous fixed 10.
+ */
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `profiles` ADD COLUMN `timerCountdownSeconds` INTEGER NOT NULL DEFAULT 5")
+    }
+}

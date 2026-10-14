@@ -31,14 +31,15 @@ class ProgramDayAlertWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         notifier.ensureChannel()
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek
+        val date = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val today = date.dayOfWeek
         val profiles = profileRepository.observeProfiles().first()
         profiles.forEach { profile ->
             val programs = programRepository.observeProgramsForProfile(profile.id).first()
             programs.filterNot { it.isArchived }.forEach { program ->
                 when (program.config.weekSchedule[today]) {
-                    ProgramDayType.WORKOUT -> notifier.showWorkoutDayAlert(program)
-                    ProgramDayType.TEST -> notifier.showTestDayAlert(program)
+                    ProgramDayType.WORKOUT -> notifier.showWorkoutDayAlert(program, date)
+                    ProgramDayType.TEST -> notifier.showTestDayAlert(program, date)
                     ProgramDayType.REST -> Unit
                 }
             }

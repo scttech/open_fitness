@@ -26,6 +26,9 @@ interface ProfileDao {
     @Delete
     suspend fun delete(profile: ProfileEntity)
 
+    @Query("UPDATE profiles SET timerCountdownSeconds = :seconds WHERE id = :profileId")
+    suspend fun updateTimerCountdownSeconds(profileId: Long, seconds: Int)
+
     @Query("UPDATE profiles SET timerSoundEnabled = :enabled WHERE id = :profileId")
     suspend fun updateTimerSoundEnabled(profileId: Long, enabled: Boolean)
 

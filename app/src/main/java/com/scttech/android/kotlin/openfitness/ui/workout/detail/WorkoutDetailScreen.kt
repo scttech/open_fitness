@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
@@ -42,6 +43,7 @@ internal fun WorkoutDetailRoute(
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onStartSession: (Long) -> Unit,
+    onScheduleClick: (Long) -> Unit,
     onExerciseClick: (Long) -> Unit,
     onDeleted: () -> Unit,
     modifier: Modifier = Modifier,
@@ -58,6 +60,7 @@ internal fun WorkoutDetailRoute(
         onBackClick = onBackClick,
         onEditClick = onEditClick,
         onStartSession = onStartSession,
+        onScheduleClick = onScheduleClick,
         onExerciseClick = onExerciseClick,
         onDeleteClick = viewModel::deleteWorkout,
         modifier = modifier,
@@ -70,6 +73,7 @@ internal fun WorkoutDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit,
     onStartSession: (Long) -> Unit,
+    onScheduleClick: (Long) -> Unit,
     onExerciseClick: (Long) -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -88,6 +92,9 @@ internal fun WorkoutDetailScreen(
                 },
                 actions = {
                     if (uiState is WorkoutDetailUiState.Success) {
+                        IconButton(onClick = { onScheduleClick(uiState.workout.id) }) {
+                            Icon(Icons.Filled.CalendarMonth, contentDescription = "Schedule")
+                        }
                         IconButton(onClick = { onEditClick(uiState.workout.id) }) {
                             Icon(Icons.Filled.Edit, contentDescription = "Edit")
                         }

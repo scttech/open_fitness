@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.data.repository.SessionRepository
 import com.scttech.android.kotlin.openfitness.data.repository.WorkoutRepository
+import com.scttech.android.kotlin.openfitness.domain.model.DEFAULT_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.PerformedSet
 import com.scttech.android.kotlin.openfitness.domain.model.SessionResult
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
@@ -72,6 +73,7 @@ class ActiveSessionViewModel @Inject constructor(
     private var followAlongStarted = false
     private val soundPlayer = TimerSoundPlayer()
     private var soundEnabled = true
+    private var countdownSeconds = DEFAULT_TIMER_COUNTDOWN_SECONDS
 
     private val tabataTimer = PhaseTimerController(
         scope = viewModelScope,
@@ -99,7 +101,10 @@ class ActiveSessionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            profileRepository.observeCurrentProfile().collect { soundEnabled = it?.timerSoundEnabled ?: true }
+            profileRepository.observeCurrentProfile().collect {
+                soundEnabled = it?.timerSoundEnabled ?: true
+                countdownSeconds = it?.timerCountdownSeconds ?: DEFAULT_TIMER_COUNTDOWN_SECONDS
+            }
         }
         viewModelScope.launch {
             val loaded = workoutRepository.observeWorkout(route.workoutId).first() ?: return@launch
@@ -359,7 +364,7 @@ class ActiveSessionViewModel @Inject constructor(
     // ---- Shared countdown sound hooks (Tabata + EMOM + rest timers) ----
 
     private fun onCountdownTick(secondsRemaining: Int) {
-        if (soundEnabled && secondsRemaining in 1..COUNTDOWN_TICK_SECONDS) soundPlayer.playTick()
+        if (soundEnabled && secondsRemaining in 1..countdownSeconds) soundPlayer.playTick()
     }
 
     private fun playPhaseCompleteSound() {
@@ -519,7 +524,6 @@ class ActiveSessionViewModel @Inject constructor(
     }
 
     private companion object {
-        const val COUNTDOWN_TICK_SECONDS = 10
         const val EMOM_MINUTE_SECONDS = 60
     }
 }

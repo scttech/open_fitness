@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.scttech.android.kotlin.openfitness.ui.calendar.CalendarRoute as CalendarRouteScreen
+import com.scttech.android.kotlin.openfitness.ui.calendar.ScheduleEditorRoute as ScheduleEditorRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.exercise.builder.ExerciseBuilderRoute as ExerciseBuilderRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.exercise.detail.ExerciseDetailRoute as ExerciseDetailRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.exercise.list.ExerciseListRoute as ExerciseListRouteScreen
@@ -18,6 +20,8 @@ import com.scttech.android.kotlin.openfitness.ui.program.session.ActiveProgramSe
 import com.scttech.android.kotlin.openfitness.ui.program.testcheckin.ProgramTestCheckInRoute as ProgramTestCheckInRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.session.ActiveSessionRoute as ActiveSessionRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.badges.BadgesRoute as BadgesRouteScreen
+import com.scttech.android.kotlin.openfitness.ui.messages.MessageCenterRoute as MessageCenterRouteScreen
+import com.scttech.android.kotlin.openfitness.ui.settings.ProfileHomeRoute as ProfileHomeRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.settings.SettingsRoute as SettingsRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.stats.StatsRoute as StatsRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.weight.WeightRoute as WeightRouteScreen
@@ -26,6 +30,10 @@ import com.scttech.android.kotlin.openfitness.ui.workout.detail.WorkoutDetailRou
 import com.scttech.android.kotlin.openfitness.ui.workout.list.SelectWorkoutStyleRoute as SelectWorkoutStyleRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.workout.list.WorkoutListRoute as WorkoutListRouteScreen
 import com.scttech.android.kotlin.openfitness.ui.workout.templates.TemplateBrowserRoute as TemplateBrowserRouteScreen
+
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 @Composable
 fun OpenFitnessNavHost(
@@ -97,6 +105,14 @@ fun OpenFitnessNavHost(
                 onBackClick = { navController.popBackStack() },
                 onEditClick = { id -> navController.navigate(WorkoutBuilderRoute(workoutId = id)) },
                 onStartSession = { id -> navController.navigate(ActiveSessionRoute(id)) },
+                onScheduleClick = { id ->
+                    navController.navigate(
+                        ScheduleEditorRoute(
+                            epochDay = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays(),
+                            workoutId = id,
+                        ),
+                    )
+                },
                 onExerciseClick = { id -> navController.navigate(ExerciseDetailRoute(id)) },
                 onDeleted = { navController.popBackStack() },
             )
@@ -177,15 +193,45 @@ fun OpenFitnessNavHost(
             )
         }
 
-        composable<SettingsRoute> {
-            SettingsRouteScreen(
+        composable<CalendarRoute> {
+            CalendarRouteScreen(
+                onStartWorkout = { id -> navController.navigate(ActiveSessionRoute(id)) },
+                onStartProgramSession = { id -> navController.navigate(ActiveProgramSessionRoute(id)) },
+                onRecordTest = { id -> navController.navigate(ProgramTestCheckInRoute(id)) },
+                onAddEvent = { date -> navController.navigate(ScheduleEditorRoute(epochDay = date.toEpochDays())) },
+                onEditEvent = { id, date -> navController.navigate(ScheduleEditorRoute(eventId = id, epochDay = date.toEpochDays())) },
+            )
+        }
+
+        composable<ScheduleEditorRoute> {
+            ScheduleEditorRouteScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaved = { navController.popBackStack() },
+            )
+        }
+
+        composable<ProfileTabRoute> {
+            ProfileHomeRouteScreen(
                 onSwitchProfile = {
                     navController.navigate(ProfilePickerRoute) { popUpTo(0) }
                 },
+                onMessagesClick = { navController.navigate(MessageCenterRoute) },
+                onSettingsClick = { navController.navigate(SettingsRoute) },
                 onHistoryClick = { navController.navigate(HistoryRoute) },
                 onWeightClick = { navController.navigate(WeightRoute) },
                 onStatsClick = { navController.navigate(StatsRoute) },
                 onBadgesClick = { navController.navigate(BadgesRoute) },
+            )
+        }
+
+        composable<SettingsRoute> {
+            SettingsRouteScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable<MessageCenterRoute> {
+            MessageCenterRouteScreen(
+                onBackClick = { navController.popBackStack() },
+                onNavigate = { route -> navController.navigate(route) },
             )
         }
 

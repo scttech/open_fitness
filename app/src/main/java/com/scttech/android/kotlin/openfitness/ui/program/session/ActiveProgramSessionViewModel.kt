@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramSessionRepository
+import com.scttech.android.kotlin.openfitness.domain.model.DEFAULT_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.PerformedSet
 import com.scttech.android.kotlin.openfitness.domain.model.Program
 import com.scttech.android.kotlin.openfitness.domain.model.ProgramSession
@@ -52,16 +53,20 @@ class ActiveProgramSessionViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TimerColorPrefs())
 
     private var soundEnabled = true
+    private var countdownSeconds = DEFAULT_TIMER_COUNTDOWN_SECONDS
     private val soundPlayer = TimerSoundPlayer()
     private val restTimer = PhaseTimerController(
         scope = viewModelScope,
-        onTick = { remaining, _ -> if (soundEnabled && remaining in 1..COUNTDOWN_TICK_SECONDS) soundPlayer.playTick() },
+        onTick = { remaining, _ -> if (soundEnabled && remaining in 1..countdownSeconds) soundPlayer.playTick() },
         onPhaseComplete = { if (soundEnabled) soundPlayer.playPhaseComplete() },
     )
 
     init {
         viewModelScope.launch {
-            profileRepository.observeCurrentProfile().collect { soundEnabled = it?.timerSoundEnabled ?: true }
+            profileRepository.observeCurrentProfile().collect {
+                soundEnabled = it?.timerSoundEnabled ?: true
+                countdownSeconds = it?.timerCountdownSeconds ?: DEFAULT_TIMER_COUNTDOWN_SECONDS
+            }
         }
         viewModelScope.launch {
             val loaded = programRepository.observeProgram(route.programId).first() ?: return@launch
@@ -151,6 +156,5 @@ class ActiveProgramSessionViewModel @Inject constructor(
     }
 
     private companion object {
-        const val COUNTDOWN_TICK_SECONDS = 10
     }
 }

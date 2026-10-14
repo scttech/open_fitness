@@ -4,12 +4,16 @@ import com.scttech.android.kotlin.openfitness.data.repository.BadgeRepository
 import com.scttech.android.kotlin.openfitness.data.repository.BadgeRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ExerciseRepositoryImpl
+import com.scttech.android.kotlin.openfitness.data.repository.MessageRepository
+import com.scttech.android.kotlin.openfitness.data.repository.MessageRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramSessionRepository
 import com.scttech.android.kotlin.openfitness.data.repository.ProgramSessionRepositoryImpl
+import com.scttech.android.kotlin.openfitness.data.repository.ScheduleRepository
+import com.scttech.android.kotlin.openfitness.data.repository.ScheduleRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.SessionRepository
 import com.scttech.android.kotlin.openfitness.data.repository.SessionRepositoryImpl
 import com.scttech.android.kotlin.openfitness.data.repository.WeightRepository
@@ -48,4 +52,10 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindBadgeRepository(impl: BadgeRepositoryImpl): BadgeRepository
+
+    @Binds
+    abstract fun bindScheduleRepository(impl: ScheduleRepositoryImpl): ScheduleRepository
+
+    @Binds
+    abstract fun bindMessageRepository(impl: MessageRepositoryImpl): MessageRepository
 }

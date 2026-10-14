@@ -10,6 +10,8 @@ data class Profile(
     val createdAt: Instant,
     /** Whether workout/program timers play tick and phase-change sounds for this profile. */
     val timerSoundEnabled: Boolean = true,
+    /** Tick sounds play during the last this-many seconds of a countdown. */
+    val timerCountdownSeconds: Int = DEFAULT_TIMER_COUNTDOWN_SECONDS,
     /** Null means "use the default" - see [com.scttech.android.kotlin.openfitness.ui.theme.DefaultTimerWorkColor]. */
     val timerWorkColorArgb: Int? = null,
     val timerRestColorArgb: Int? = null,
@@ -20,3 +22,7 @@ data class Profile(
     /** How this profile sees and enters weights; stored weights are always kilograms. */
     val weightUnit: WeightUnit = WeightUnit.KG,
 )
+
+const val DEFAULT_TIMER_COUNTDOWN_SECONDS = 5
+const val MIN_TIMER_COUNTDOWN_SECONDS = 1
+const val MAX_TIMER_COUNTDOWN_SECONDS = 15

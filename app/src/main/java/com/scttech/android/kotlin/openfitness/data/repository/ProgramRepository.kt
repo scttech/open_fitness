@@ -8,6 +8,7 @@ interface ProgramRepository {
     fun observeProgramsForProfile(profileId: Long): Flow<List<Program>>
     fun observeProgram(id: Long): Flow<Program?>
     fun observeTestsForProgram(programId: Long): Flow<List<ProgramTest>>
+    fun observeTestsForProfile(profileId: Long): Flow<List<ProgramTest>>
     suspend fun saveProgram(program: Program): Long
     suspend fun deleteProgram(program: Program)
 

@@ -11,6 +11,9 @@ import com.scttech.android.kotlin.openfitness.domain.program.ProgramRetestPolicy
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 /**
  * Runs roughly once a day (see [OpenFitnessApplication][com.scttech.android.kotlin.openfitness.OpenFitnessApplication])
@@ -29,6 +32,7 @@ class RetestReminderWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         notifier.ensureChannel()
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val profiles = profileRepository.observeProfiles().first()
         profiles.forEach { profile ->
             val programs = programRepository.observeProgramsForProfile(profile.id).first()
@@ -36,7 +40,7 @@ class RetestReminderWorker @AssistedInject constructor(
                 val since = program.lastTestedAt ?: program.createdAt
                 val completedSessions = programSessionRepository.countCompletedSessionsSince(program.id, since)
                 if (ProgramRetestPolicy.isRetestDue(program, completedSessions)) {
-                    notifier.showRetestDue(program)
+                    notifier.showRetestDue(program, today)
                 }
             }
         }

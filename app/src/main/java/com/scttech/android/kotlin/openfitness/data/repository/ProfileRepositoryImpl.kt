@@ -6,6 +6,8 @@ import com.scttech.android.kotlin.openfitness.data.local.AvatarImageStore
 import com.scttech.android.kotlin.openfitness.data.local.dao.ProfileDao
 import com.scttech.android.kotlin.openfitness.data.local.entity.asDomainModel
 import com.scttech.android.kotlin.openfitness.data.local.entity.asEntity
+import com.scttech.android.kotlin.openfitness.domain.model.MAX_TIMER_COUNTDOWN_SECONDS
+import com.scttech.android.kotlin.openfitness.domain.model.MIN_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
@@ -71,6 +73,13 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun setTimerSoundEnabled(profileId: Long, enabled: Boolean) {
         profileDao.updateTimerSoundEnabled(profileId, enabled)
+    }
+
+    override suspend fun setTimerCountdownSeconds(profileId: Long, seconds: Int) {
+        profileDao.updateTimerCountdownSeconds(
+            profileId,
+            seconds.coerceIn(MIN_TIMER_COUNTDOWN_SECONDS, MAX_TIMER_COUNTDOWN_SECONDS),
+        )
     }
 
     override suspend fun setTimerWorkColor(profileId: Long, argb: Int) {

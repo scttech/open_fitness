@@ -1,10 +1,11 @@
 package com.scttech.android.kotlin.openfitness.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 
@@ -72,6 +73,24 @@ data class ProgramHistoryRoute(val programId: Long)
 data class ActiveProgramSessionRoute(val programId: Long)
 
 @Serializable
+data object CalendarRoute
+
+/**
+ * [epochDay] is the day to pre-fill for a new event and [workoutId] a workout to pre-select (0 for
+ * none); both are ignored when editing an existing [eventId].
+ */
+@Serializable
+data class ScheduleEditorRoute(val eventId: Long = 0L, val epochDay: Int = 0, val workoutId: Long = 0L)
+
+/** The Profile bottom-nav tab. */
+@Serializable
+data object ProfileTabRoute
+
+@Serializable
+data object MessageCenterRoute
+
+/** Weight unit, appearance and timer preferences, nested under the Profile tab. */
+@Serializable
 data object SettingsRoute
 
 enum class TopLevelDestination(
@@ -79,7 +98,8 @@ enum class TopLevelDestination(
     val icon: ImageVector,
 ) {
     PROGRAMS("Programs", Icons.Filled.EmojiEvents),
+    CALENDAR("Calendar", Icons.Filled.CalendarMonth),
     WORKOUTS("Workouts", Icons.Filled.FitnessCenter),
     EXERCISES("Exercises", Icons.Filled.MenuBook),
-    SETTINGS("Settings", Icons.Filled.Settings),
+    PROFILE("Profile", Icons.Filled.Person),
 }

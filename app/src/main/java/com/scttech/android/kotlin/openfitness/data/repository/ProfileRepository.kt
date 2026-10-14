@@ -23,6 +23,8 @@ interface ProfileRepository {
     val weightUnit: Flow<WeightUnit>
     suspend fun setWeightUnit(profileId: Long, unit: WeightUnit)
     suspend fun setTimerSoundEnabled(profileId: Long, enabled: Boolean)
+    /** How many seconds before a countdown ends the tick sounds begin. */
+    suspend fun setTimerCountdownSeconds(profileId: Long, seconds: Int)
     suspend fun setTimerWorkColor(profileId: Long, argb: Int)
     suspend fun setTimerRestColor(profileId: Long, argb: Int)
     suspend fun updateAvatarFromUri(profile: Profile, uri: Uri)

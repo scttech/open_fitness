@@ -13,6 +13,9 @@ interface ProgramTestDao {
     @Query("SELECT * FROM program_tests WHERE programId = :programId ORDER BY testedAtEpochMillis DESC")
     fun observeTestsForProgram(programId: Long): Flow<List<ProgramTestEntity>>
 
+    @Query("SELECT * FROM program_tests WHERE profileId = :profileId ORDER BY testedAtEpochMillis DESC")
+    fun observeTestsForProfile(profileId: Long): Flow<List<ProgramTestEntity>>
+
     @Insert
     suspend fun insert(test: ProgramTestEntity): Long
 

@@ -32,6 +32,9 @@ class ProgramRepositoryImpl @Inject constructor(
     override fun observeTestsForProgram(programId: Long): Flow<List<ProgramTest>> =
         programTestDao.observeTestsForProgram(programId).map { entities -> entities.map { it.asDomainModel() } }
 
+    override fun observeTestsForProfile(profileId: Long): Flow<List<ProgramTest>> =
+        programTestDao.observeTestsForProfile(profileId).map { entities -> entities.map { it.asDomainModel() } }
+
     override suspend fun saveProgram(program: Program): Long {
         val toSave = if (program.id == 0L) program.copy(createdAt = Clock.System.now()) else program
         return if (toSave.id == 0L) {

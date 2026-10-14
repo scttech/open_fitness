@@ -1,9 +1,9 @@
 package com.scttech.android.kotlin.openfitness.ui.settings
 
-import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,22 +15,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MonitorWeight
-import androidx.compose.material.icons.filled.SwitchAccount
-import androidx.compose.material.icons.filled.WorkspacePremium
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -41,70 +30,47 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlin.math.roundToInt
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.scttech.android.kotlin.openfitness.domain.model.Profile
+import com.scttech.android.kotlin.openfitness.domain.model.MAX_TIMER_COUNTDOWN_SECONDS
+import com.scttech.android.kotlin.openfitness.domain.model.MIN_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
-import com.scttech.android.kotlin.openfitness.ui.common.AvatarPickerDialog
-import com.scttech.android.kotlin.openfitness.ui.common.ConfirmDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
-import com.scttech.android.kotlin.openfitness.ui.common.ProfileAvatar
-import com.scttech.android.kotlin.openfitness.ui.common.TextInputDialog
 import com.scttech.android.kotlin.openfitness.ui.theme.TimerPaletteColors
-import kotlinx.coroutines.launch
 
+/** Weight unit, appearance and workout-timer preferences, reached from the Profile tab. */
 @Composable
 internal fun SettingsRoute(
-    onSwitchProfile: () -> Unit,
-    onHistoryClick: () -> Unit,
-    onWeightClick: () -> Unit,
-    onStatsClick: () -> Unit,
-    onBadgesClick: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val coroutineScope = rememberCoroutineScope()
 
     SettingsScreen(
         uiState = uiState,
-        onRenameProfile = viewModel::renameProfile,
-        onDeleteProfile = { profile ->
-            viewModel.deleteProfile(profile)
-            onSwitchProfile()
-        },
-        onSwitchProfile = {
-            coroutineScope.launch {
-                viewModel.switchProfile()
-                onSwitchProfile()
-            }
-        },
-        onHistoryClick = onHistoryClick,
-        onWeightClick = onWeightClick,
-        onStatsClick = onStatsClick,
-        onBadgesClick = onBadgesClick,
+        onBackClick = onBackClick,
         onTimerSoundEnabledChange = viewModel::setTimerSoundEnabled,
+        onTimerCountdownSecondsChange = viewModel::setTimerCountdownSeconds,
         onTimerWorkColorChange = viewModel::setTimerWorkColor,
         onTimerRestColorChange = viewModel::setTimerRestColor,
         onThemeModeChange = viewModel::setThemeMode,
         onWeightUnitChange = viewModel::setWeightUnit,
-        onUpdateAvatarFromUri = viewModel::updateAvatarFromUri,
-        onUpdateAvatarPreset = viewModel::updateAvatarPreset,
-        onCreateAvatarCaptureUri = viewModel::createAvatarCaptureUri,
         modifier = modifier,
     )
 }
@@ -112,30 +78,25 @@ internal fun SettingsRoute(
 @Composable
 internal fun SettingsScreen(
     uiState: SettingsUiState,
-    onRenameProfile: (Profile, String) -> Unit,
-    onDeleteProfile: (Profile) -> Unit,
-    onSwitchProfile: () -> Unit,
-    onHistoryClick: () -> Unit,
-    onWeightClick: () -> Unit,
-    onStatsClick: () -> Unit,
-    onBadgesClick: () -> Unit,
+    onBackClick: () -> Unit,
     onTimerSoundEnabledChange: (Boolean) -> Unit,
+    onTimerCountdownSecondsChange: (Int) -> Unit,
     onTimerWorkColorChange: (Color) -> Unit,
     onTimerRestColorChange: (Color) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
     onWeightUnitChange: (WeightUnit) -> Unit,
-    onUpdateAvatarFromUri: (Profile, Uri) -> Unit,
-    onUpdateAvatarPreset: (Profile, String) -> Unit,
-    onCreateAvatarCaptureUri: () -> Uri,
     modifier: Modifier = Modifier,
 ) {
-    var showRenameDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showAvatarPicker by remember { mutableStateOf(false) }
-
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("Settings") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                },
+            )
+        },
     ) { padding ->
         when (uiState) {
             SettingsUiState.Loading -> FullScreenLoading(Modifier.padding(padding))
@@ -145,32 +106,10 @@ internal fun SettingsScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    item { Text("Profile", style = MaterialTheme.typography.titleLarge) }
-                    item {
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                ProfileAvatar(profile = uiState.currentProfile, size = 40.dp)
-                                Spacer(Modifier.width(16.dp))
-                                Text(uiState.currentProfile.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                                IconButton(onClick = { showAvatarPicker = true }) {
-                                    Icon(Icons.Filled.CameraAlt, contentDescription = "Change avatar")
-                                }
-                                IconButton(onClick = { showRenameDialog = true }) {
-                                    Icon(Icons.Filled.Edit, contentDescription = "Rename profile")
-                                }
-                                IconButton(onClick = { showDeleteDialog = true }) {
-                                    Icon(Icons.Filled.Delete, contentDescription = "Delete profile")
-                                }
-                            }
-                        }
-                    }
-                    item { SettingsRow(icon = Icons.Filled.SwitchAccount, label = "Switch profile", onClick = onSwitchProfile) }
-
+                    item { Text("Weight unit", style = MaterialTheme.typography.titleLarge) }
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Weight unit", style = MaterialTheme.typography.titleMedium)
-                                Spacer(Modifier.height(8.dp))
                                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                                     WeightUnit.entries.forEachIndexed { index, unit ->
                                         SegmentedButton(
@@ -211,14 +150,6 @@ internal fun SettingsScreen(
 
                     item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
 
-                    item { Text("Data & History", style = MaterialTheme.typography.titleLarge) }
-                    item { SettingsRow(icon = Icons.Filled.History, label = "History", onClick = onHistoryClick) }
-                    item { SettingsRow(icon = Icons.Filled.MonitorWeight, label = "Body Weight", onClick = onWeightClick) }
-                    item { SettingsRow(icon = Icons.Filled.Assessment, label = "Stats", onClick = onStatsClick) }
-                    item { SettingsRow(icon = Icons.Filled.WorkspacePremium, label = "Badges", onClick = onBadgesClick) }
-
-                    item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
-
                     item { Text("Timer", style = MaterialTheme.typography.titleLarge) }
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
@@ -232,6 +163,30 @@ internal fun SettingsScreen(
                                     modifier = Modifier.weight(1f),
                                 )
                                 Switch(checked = uiState.timerSoundEnabled, onCheckedChange = onTimerSoundEnabledChange)
+                            }
+                        }
+                    }
+                    if (uiState.timerSoundEnabled) {
+                        item {
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                var seconds by remember(uiState.timerCountdownSeconds) {
+                                    mutableFloatStateOf(uiState.timerCountdownSeconds.toFloat())
+                                }
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Start countdown sounds", style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Ticks play during the last ${seconds.roundToInt()} seconds of each countdown.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Slider(
+                                        value = seconds,
+                                        onValueChange = { seconds = it },
+                                        onValueChangeFinished = { onTimerCountdownSecondsChange(seconds.roundToInt()) },
+                                        valueRange = MIN_TIMER_COUNTDOWN_SECONDS.toFloat()..MAX_TIMER_COUNTDOWN_SECONDS.toFloat(),
+                                        steps = MAX_TIMER_COUNTDOWN_SECONDS - MIN_TIMER_COUNTDOWN_SECONDS - 1,
+                                    )
+                                }
                             }
                         }
                     }
@@ -257,72 +212,12 @@ internal fun SettingsScreen(
             }
         }
     }
-
-    if (uiState is SettingsUiState.Success) {
-        if (showRenameDialog) {
-            TextInputDialog(
-                title = "Rename profile",
-                initialValue = uiState.currentProfile.name,
-                confirmLabel = "Rename",
-                onConfirm = {
-                    onRenameProfile(uiState.currentProfile, it)
-                    showRenameDialog = false
-                },
-                onDismiss = { showRenameDialog = false },
-            )
-        }
-        if (showDeleteDialog) {
-            ConfirmDialog(
-                title = "Delete profile?",
-                text = "This permanently deletes \"${uiState.currentProfile.name}\" and all of its workouts, programs, history, and weight entries.",
-                confirmLabel = "Delete",
-                onConfirm = {
-                    showDeleteDialog = false
-                    onDeleteProfile(uiState.currentProfile)
-                },
-                onDismiss = { showDeleteDialog = false },
-            )
-        }
-        if (showAvatarPicker) {
-            AvatarPickerDialog(
-                onPresetPicked = { onUpdateAvatarPreset(uiState.currentProfile, it) },
-                onImagePicked = { onUpdateAvatarFromUri(uiState.currentProfile, it) },
-                onCreateCaptureUri = onCreateAvatarCaptureUri,
-                onDismiss = { showAvatarPicker = false },
-            )
-        }
-    }
 }
 
 private fun ThemeMode.label() = when (this) {
     ThemeMode.SYSTEM -> "System"
     ThemeMode.LIGHT -> "Light"
     ThemeMode.DARK -> "Dark"
-}
-
-@Composable
-private fun SettingsRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.width(16.dp))
-            Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            Icon(
-                Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
 }
 
 @Composable

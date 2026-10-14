@@ -1,15 +1,41 @@
 package com.scttech.android.kotlin.openfitness.domain.template
 
+import com.scttech.android.kotlin.openfitness.domain.model.TemplateCategory
 import com.scttech.android.kotlin.openfitness.domain.model.Workout
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutExercise
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyle
 import com.scttech.android.kotlin.openfitness.domain.model.WorkoutStyleConfig
 import kotlinx.datetime.Instant
 
-/** A handful of ready-to-use example workouts, one or two per style, seeded on first launch. */
+/**
+ * Ready-to-use example workouts seeded on first launch: a few per training style, plus
+ * goal-focused routines. Each is filed under a [TemplateCategory] for the template browser.
+ */
 object StarterTemplates {
 
-    fun all(): List<Workout> = listOf(
+    fun all(): List<Workout> = protocolTemplates() + StarterGoalTemplates.all()
+
+    /** The browser category for a template [name]; anything unrecognised falls under General. */
+    fun categoryOf(name: String): TemplateCategory = CATEGORY_BY_NAME[name] ?: TemplateCategory.GENERAL
+
+    private val CATEGORY_BY_NAME: Map<String, TemplateCategory> by lazy {
+        buildMap {
+            put("Classic Tabata Squats", TemplateCategory.CONDITIONING)
+            put("Tabata Full-Body Circuit", TemplateCategory.FAT_LOSS)
+            put("Daily Pull-Up Grease", TemplateCategory.STRENGTH)
+            put("Push-Up Endurance Grease", TemplateCategory.STRENGTH)
+            put("Kettlebell Swing Pyramid", TemplateCategory.CONDITIONING)
+            put("Burpee Ascending Pyramid", TemplateCategory.CONDITIONING)
+            put("15-Minute Density Circuit", TemplateCategory.FAT_LOSS)
+            put("20-Minute Density Row & Carry", TemplateCategory.CONDITIONING)
+            put("Barbell Squat Step-Loading", TemplateCategory.STRENGTH)
+            put("Deadlift Step-Loading", TemplateCategory.STRENGTH)
+            put("Full-Body EMOM", TemplateCategory.FAT_LOSS)
+            putAll(StarterGoalTemplates.categories())
+        }
+    }
+
+    private fun protocolTemplates(): List<Workout> = listOf(
         Workout(
             profileId = null,
             name = "Classic Tabata Squats",
@@ -39,7 +65,7 @@ object StarterTemplates {
             ),
             exercises = listOf(
                 WorkoutExercise(order = 0, name = "Push-Up"),
-                WorkoutExercise(order = 1, name = "Squat"),
+                WorkoutExercise(order = 1, name = "Air Squat"),
                 WorkoutExercise(order = 2, name = "Mountain Climber"),
                 WorkoutExercise(order = 3, name = "Plank"),
             ),
@@ -127,7 +153,7 @@ object StarterTemplates {
             style = WorkoutStyle.DENSITY,
             styleConfig = WorkoutStyleConfig.Density(durationMinutes = 20, targetRounds = 8),
             exercises = listOf(
-                WorkoutExercise(order = 0, name = "Row (calories)", targetReps = 10),
+                WorkoutExercise(order = 0, name = "Row (Erg/Rower)", targetReps = 10),
                 WorkoutExercise(order = 1, name = "Farmer's Carry", targetDistanceMeters = 40.0),
             ),
             notes = "Target 8 rounds in 20 minutes.",
@@ -253,7 +279,7 @@ object StarterTemplates {
     )
 
     /** Builds an ordered Follow Along exercise list from (name, seconds) pairs - "Rest" names become rest steps. */
-    private fun followAlongSequence(vararg steps: Pair<String, Int>): List<WorkoutExercise> =
+    internal fun followAlongSequence(vararg steps: Pair<String, Int>): List<WorkoutExercise> =
         steps.mapIndexed { index, (name, seconds) ->
             val isRest = name == "Rest"
             WorkoutExercise(order = index, name = name, targetDurationSeconds = seconds, isRest = isRest)

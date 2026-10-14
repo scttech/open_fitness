@@ -2,6 +2,7 @@ package com.scttech.android.kotlin.openfitness.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.scttech.android.kotlin.openfitness.domain.model.DEFAULT_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import kotlinx.datetime.Instant
@@ -13,6 +14,7 @@ data class ProfileEntity(
     val colorIndex: Int,
     val createdAtEpochMillis: Long,
     val timerSoundEnabled: Boolean = true,
+    val timerCountdownSeconds: Int = DEFAULT_TIMER_COUNTDOWN_SECONDS,
     val timerWorkColorArgb: Int? = null,
     val timerRestColorArgb: Int? = null,
     val avatarPresetKey: String? = null,
@@ -26,6 +28,7 @@ fun ProfileEntity.asDomainModel() = Profile(
     colorIndex = colorIndex,
     createdAt = Instant.fromEpochMilliseconds(createdAtEpochMillis),
     timerSoundEnabled = timerSoundEnabled,
+    timerCountdownSeconds = timerCountdownSeconds,
     timerWorkColorArgb = timerWorkColorArgb,
     timerRestColorArgb = timerRestColorArgb,
     avatarPresetKey = avatarPresetKey,
@@ -39,6 +42,7 @@ fun Profile.asEntity() = ProfileEntity(
     colorIndex = colorIndex,
     createdAtEpochMillis = createdAt.toEpochMilliseconds(),
     timerSoundEnabled = timerSoundEnabled,
+    timerCountdownSeconds = timerCountdownSeconds,
     timerWorkColorArgb = timerWorkColorArgb,
     timerRestColorArgb = timerRestColorArgb,
     avatarPresetKey = avatarPresetKey,

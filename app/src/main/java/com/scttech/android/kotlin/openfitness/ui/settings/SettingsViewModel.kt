@@ -36,6 +36,7 @@ class SettingsViewModel @Inject constructor(
             SettingsUiState.Success(
                 currentProfile = profile,
                 timerSoundEnabled = profile.timerSoundEnabled,
+                timerCountdownSeconds = profile.timerCountdownSeconds,
                 timerWorkColor = colors.workColor,
                 timerRestColor = colors.restColor,
                 themeMode = themeMode,
@@ -77,6 +78,13 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val profileId = profileRepository.currentProfileId.filterNotNull().first()
             profileRepository.setTimerSoundEnabled(profileId, enabled)
+        }
+    }
+
+    fun setTimerCountdownSeconds(seconds: Int) {
+        viewModelScope.launch {
+            val profileId = profileRepository.currentProfileId.filterNotNull().first()
+            profileRepository.setTimerCountdownSeconds(profileId, seconds)
         }
     }
 
