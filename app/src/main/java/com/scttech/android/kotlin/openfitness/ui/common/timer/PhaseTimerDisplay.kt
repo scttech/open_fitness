@@ -24,8 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.scttech.android.kotlin.openfitness.ui.common.animation.ExerciseAnimationFor
+
+private val TIMER_ANIMATION_HEIGHT: Dp = 200.dp
 
 /**
  * Shared countdown UI for any phase-based workout/program timer (Tabata, program/set rest, ...).
@@ -67,6 +71,16 @@ fun PhaseTimerDisplay(
         phase.subtitle?.let { subtitle ->
             Spacer(Modifier.height(4.dp))
             Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        // Work shows the exercise being done; a rest previews the one coming next, which also keeps the layout steady.
+        val demonstrated = if (phase.kind == TimerPhaseKind.WORK) phase else state.nextPhase?.takeIf { it.kind == TimerPhaseKind.WORK }
+        if (demonstrated != null) {
+            Spacer(Modifier.height(8.dp))
+            ExerciseAnimationFor(
+                exerciseId = demonstrated.exerciseId,
+                exerciseName = demonstrated.label,
+                modifier = Modifier.fillMaxWidth().height(TIMER_ANIMATION_HEIGHT),
+            )
         }
         Spacer(Modifier.height(8.dp))
         Text(state.secondsRemaining.toString(), fontSize = 96.sp, fontWeight = FontWeight.Bold, color = color)

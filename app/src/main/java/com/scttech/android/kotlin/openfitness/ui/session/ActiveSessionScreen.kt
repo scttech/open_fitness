@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.scttech.android.kotlin.openfitness.ui.common.animation.ExerciseAnimationFor
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -390,6 +391,11 @@ private fun SetLoggingSessionContent(
             style = MaterialTheme.typography.headlineSmall,
             color = if (exerciseId != null) MaterialTheme.colorScheme.primary else Color.Unspecified,
             modifier = if (exerciseId != null) Modifier.clickable { onExerciseClick(exerciseId) } else Modifier,
+        )
+        ExerciseAnimationFor(
+            exerciseId = exerciseId,
+            exerciseName = state.exerciseName,
+            modifier = Modifier.fillMaxWidth().height(180.dp),
         )
         Text(state.targetDescription, color = MaterialTheme.colorScheme.onSurfaceVariant)
         val weightUnit = LocalWeightUnit.current

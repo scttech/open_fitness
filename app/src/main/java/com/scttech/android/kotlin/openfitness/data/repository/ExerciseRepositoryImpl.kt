@@ -45,5 +45,10 @@ class ExerciseRepositoryImpl @Inject constructor(
         if (missing.isNotEmpty()) {
             exerciseDao.insertAll(missing.map { it.asEntity() })
         }
+        // Exercises seeded by an older version have no clip yet.
+        StarterExercises.all().forEach { starter ->
+            val clip = starter.animationName ?: return@forEach
+            exerciseDao.backfillAnimation(starter.name, clip)
+        }
     }
 }

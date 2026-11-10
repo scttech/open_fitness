@@ -8,7 +8,11 @@ import kotlinx.datetime.Instant
 /** A reference library of common exercises with form notes, seeded on first launch. */
 object StarterExercises {
 
-    fun all(): List<Exercise> = listOf(
+    fun all(): List<Exercise> = exercises().map { exercise ->
+        exercise.copy(animationName = ANIMATIONS[exercise.name])
+    }
+
+    private fun exercises(): List<Exercise> = listOf(
         Exercise(
             name = "Push-Up",
             category = ExerciseCategory.CHEST,
@@ -1424,6 +1428,62 @@ object StarterExercises {
             formNotes = "Stand over the dummy, pull guard onto your back and pop up to standing as you would a burpee. Repeat quickly. Builds the movement used in guard-pull competitions.",
             createdAt = TEMPLATE_EPOCH,
         ),
+    )
+
+    /**
+     * Exercise name -> the clip in `assets/exercises/exercise_animations.glb` that demonstrates it.
+     * Exercises not listed have no animation yet.
+     */
+    val ANIMATIONS: Map<String, String> = mapOf(
+        "Push-Up" to "Pushup",
+        "Diamond Push-Up" to "DiamondPushup",
+        "Pull-Up" to "Pullup",
+        "Chin-Up" to "Chinup",
+        "Superman" to "Superman",
+        "Chin Tuck" to "ChinTuck",
+        "Kettlebell Deadlift" to "KettlebellDeadlift",
+        "Kettlebell Swing" to "Kbswing",
+        "Kettlebell Halo" to "KettlebellHalo",
+        "Kettlebell Lunge" to "KettlebellLunge",
+        "Kettlebell Russian Twist" to "KettlebellRussianTwist",
+        "Goblet Squat" to "GobletSquat", // both the dumbbell and kettlebell entries; the clip shows a kettlebell
+        "Mace 10-to-2 Swing" to "Mace10to2",
+        "Mace Overhead Press" to "MaceOverheadPress",
+        "Mace Good Morning" to "MaceGoodMorning",
+        "Mace Squat" to "MaceSquat",
+        "Mace Barbarian Squat" to "MaceBarbarianSquat",
+        "Mace Reverse Lunge" to "MaceReverseLunge",
+        "Mace Russian Twist" to "MaceRussianTwist",
+        "Bodyweight Squat" to "Squat",
+        "Air Squat" to "Squat",
+        "Jump Squat" to "JumpSquat",
+        "Lunge" to "Lunge",
+        "Reverse Lunge" to "ReverseLunge",
+        "Calf Raise" to "CalfRaise",
+        "Heel Drop" to "HeelDrop",
+        "Standing Hip Abduction" to "StandingHipAbduction",
+        "Single-Leg Balance" to "SingleLegBalance",
+        "Hip Flexor Stretch" to "HipFlexorStretch",
+        "Hamstring Stretch" to "HamstringStretch",
+        "Glute Bridge" to "GluteBridge",
+        "Plank" to "Plank",
+        "Mountain Climber" to "MountainClimber",
+        "Sit-Up" to "Situp",
+        "Crunch" to "Crunch",
+        "Bicycle Crunch" to "BicycleCrunch",
+        "Russian Twist" to "RussianTwist",
+        "Leg Raise" to "LegRaise",
+        "Hanging Leg Raise" to "HangingLegRaise",
+        "V-Up" to "VUp",
+        "Dead Bug" to "DeadBug",
+        "Flutter Kicks" to "FlutterKicks",
+        "Bird Dog" to "BirdDog",
+        "Standing Torso Twist" to "StandingTorsoTwist",
+        "Jumping Jack" to "JumpingJack",
+        "Cat-Cow" to "CatCow",
+        "Hip Circles" to "HipCircles",
+        "Thoracic Spine Rotation" to "ThoracicRotation",
+        "Neck and Shoulder Rolls" to "NeckShoulderRolls",
     )
 
     private val TEMPLATE_EPOCH = Instant.fromEpochMilliseconds(0L)

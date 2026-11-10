@@ -42,6 +42,7 @@ class ExerciseBuilderViewModel @Inject constructor(
                         equipment = exercise.equipment,
                         formNotes = exercise.formNotes,
                         isCustom = exercise.isCustom,
+                        animationName = exercise.animationName,
                     )
                     return@launch
                 }
@@ -79,6 +80,7 @@ class ExerciseBuilderViewModel @Inject constructor(
                 equipment = state.equipment,
                 formNotes = state.formNotes.trim(),
                 isCustom = state.isCustom,
+                animationName = state.animationName,
                 createdAt = Clock.System.now(),
             )
             exerciseRepository.saveExercise(exercise)

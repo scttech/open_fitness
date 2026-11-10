@@ -36,6 +36,10 @@ android {
     buildFeatures {
         compose = true
     }
+    androidResources {
+        // Keep the 3D exercise library stored raw so it can be memory-read from assets without a decompress pass.
+        noCompress += "glb"
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -90,6 +94,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
+
+    implementation(libs.filament.android)
+    implementation(libs.filament.gltfio)
 
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)

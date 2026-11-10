@@ -16,6 +16,7 @@ data class ExerciseEntity(
     val formNotes: String,
     val isCustom: Boolean,
     val createdAtEpochMillis: Long,
+    val animationName: String? = null,
 )
 
 fun ExerciseEntity.asDomainModel() = Exercise(
@@ -25,6 +26,7 @@ fun ExerciseEntity.asDomainModel() = Exercise(
     equipment = equipment,
     formNotes = formNotes,
     isCustom = isCustom,
+    animationName = animationName,
     createdAt = Instant.fromEpochMilliseconds(createdAtEpochMillis),
 )
 
@@ -36,4 +38,5 @@ fun Exercise.asEntity() = ExerciseEntity(
     formNotes = formNotes,
     isCustom = isCustom,
     createdAtEpochMillis = createdAt.toEpochMilliseconds(),
+    animationName = animationName,
 )

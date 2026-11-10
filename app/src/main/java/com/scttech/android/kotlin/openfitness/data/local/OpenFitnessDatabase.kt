@@ -42,7 +42,7 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.WorkoutSessionEn
         ProgramDaySkipEntity::class,
         MessageEntity::class,
     ],
-    version = 10,
+    version = 11,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

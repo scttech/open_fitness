@@ -2,6 +2,7 @@ package com.scttech.android.kotlin.openfitness.ui.exercise.detail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.ui.common.ConfirmDialog
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
+import com.scttech.android.kotlin.openfitness.ui.common.animation.ExerciseAnimationView
 
 @Composable
 internal fun ExerciseDetailRoute(
@@ -104,6 +106,14 @@ internal fun ExerciseDetailScreen(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+
+                    exercise.animationName?.let { clip ->
+                        ExerciseAnimationView(
+                            animationName = clip,
+                            contentDescription = "Animated demonstration of ${exercise.name}",
+                            modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+                        )
+                    }
 
                     if (exercise.formNotes.isNotBlank()) {
                         HorizontalDivider()

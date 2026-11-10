@@ -305,3 +305,10 @@ val MIGRATION_9_10 = object : Migration(9, 10) {
         db.execSQL("ALTER TABLE `profiles` ADD COLUMN `timerCountdownSeconds` INTEGER NOT NULL DEFAULT 5")
     }
 }
+
+/** Lets a library exercise reference a clip in the bundled 3D animation file. Starter exercises are backfilled at launch. */
+val MIGRATION_10_11 = object : Migration(10, 11) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `exercises` ADD COLUMN `animationName` TEXT")
+    }
+}

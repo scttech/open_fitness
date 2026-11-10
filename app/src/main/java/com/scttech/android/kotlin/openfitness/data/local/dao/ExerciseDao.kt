@@ -26,6 +26,10 @@ interface ExerciseDao {
     @Query("SELECT name FROM exercises")
     suspend fun getAllNames(): List<String>
 
+    /** Backfills a library exercise installed before animations existed; never touches one that already has a clip. */
+    @Query("UPDATE exercises SET animationName = :animationName WHERE name = :name AND isCustom = 0 AND animationName IS NULL")
+    suspend fun backfillAnimation(name: String, animationName: String)
+
     @Insert
     suspend fun insert(exercise: ExerciseEntity): Long
 

@@ -40,5 +40,7 @@ data class Exercise(
     val equipment: ExerciseEquipment,
     val formNotes: String = "",
     val isCustom: Boolean = false,
+    /** Name of the clip in the bundled 3D animation library that demonstrates this movement, or null if there is none. */
+    val animationName: String? = null,
     val createdAt: Instant,
 )

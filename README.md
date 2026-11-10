@@ -61,7 +61,7 @@ Search and filter a large exercise library by category and equipment, or add you
 
 ### Exercise Detail
 
-An exercise's category, equipment, and form notes.
+An exercise's category, equipment, and form notes. Exercises with a looping 3D demonstration (marked with a play icon in the library) show it here too: drag to look around the figure, tap to pause. The same animation appears during a workout, and a rest previews the exercise coming up next.
 
 <p><img src="docs/screenshots/exercise-detail-light.png" width="220" alt="Exercise Detail, light theme"> <img src="docs/screenshots/exercise-detail-dark.png" width="220" alt="Exercise Detail, dark theme"></p>
 
