@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.scttech.android.kotlin.openfitness.domain.model.SkinTone
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -13,6 +14,7 @@ import javax.inject.Singleton
 
 private val CURRENT_PROFILE_ID = longPreferencesKey("current_profile_id")
 private val THEME_MODE = stringPreferencesKey("theme_mode")
+private val SKIN_TONE = stringPreferencesKey("skin_tone")
 
 /** Remembers which profile ("save slot") was last active, so the app can resume into it. */
 @Singleton
@@ -34,5 +36,14 @@ class UserPreferencesDataSource @Inject constructor(
 
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { prefs -> prefs[THEME_MODE] = mode.name }
+    }
+
+    /** App-wide skin tone of the figure in the exercise animations. */
+    val skinTone: Flow<SkinTone> = dataStore.data.map { prefs ->
+        prefs[SKIN_TONE]?.let { name -> runCatching { SkinTone.valueOf(name) }.getOrNull() } ?: SkinTone.ORIGINAL
+    }
+
+    suspend fun setSkinTone(tone: SkinTone) {
+        dataStore.edit { prefs -> prefs[SKIN_TONE] = tone.name }
     }
 }

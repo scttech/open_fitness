@@ -43,11 +43,13 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scttech.android.kotlin.openfitness.domain.model.MAX_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.MIN_TIMER_COUNTDOWN_SECONDS
+import com.scttech.android.kotlin.openfitness.domain.model.SkinTone
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.ui.common.FullScreenLoading
@@ -70,6 +72,7 @@ internal fun SettingsRoute(
         onTimerWorkColorChange = viewModel::setTimerWorkColor,
         onTimerRestColorChange = viewModel::setTimerRestColor,
         onThemeModeChange = viewModel::setThemeMode,
+        onSkinToneChange = viewModel::setSkinTone,
         onWeightUnitChange = viewModel::setWeightUnit,
         modifier = modifier,
     )
@@ -84,6 +87,7 @@ internal fun SettingsScreen(
     onTimerWorkColorChange: (Color) -> Unit,
     onTimerRestColorChange: (Color) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
+    onSkinToneChange: (SkinTone) -> Unit,
     onWeightUnitChange: (WeightUnit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -144,6 +148,21 @@ internal fun SettingsScreen(
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Exercise model skin tone", style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    uiState.skinTone.label,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                SkinToneRow(selected = uiState.skinTone, onSelect = onSkinToneChange)
                             }
                         }
                     }
@@ -248,6 +267,46 @@ private fun ColorSwatchRow(
             ) {
                 if (isSelected) {
                     Icon(Icons.Filled.Check, contentDescription = "Selected", tint = Color.White, modifier = Modifier.size(18.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SkinToneRow(
+    selected: SkinTone,
+    onSelect: (SkinTone) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        SkinTone.entries.forEach { tone ->
+            val isSelected = tone == selected
+            val color = Color(tone.swatchArgb)
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clickable(onClickLabel = tone.label) { onSelect(tone) }
+                    .background(color = color, shape = CircleShape)
+                    .then(
+                        if (isSelected) {
+                            Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                        } else {
+                            Modifier
+                        },
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isSelected) {
+                    Icon(
+                        Icons.Filled.Check,
+                        contentDescription = "${tone.label}, selected",
+                        tint = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                        modifier = Modifier.size(18.dp),
+                    )
                 }
             }
         }

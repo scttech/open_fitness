@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
@@ -75,6 +77,9 @@ fun ExerciseAnimationView(
     }
 
     val current = player
+    val skinToneViewModel: SkinToneViewModel = hiltViewModel()
+    val skinTone by skinToneViewModel.skinTone.collectAsStateWithLifecycle()
+    LaunchedEffect(current, skinTone) { current?.setSkinTone(skinTone) }
     var clipFound by remember { mutableStateOf(true) }
     var rendered by remember(current) { mutableStateOf(false) }
     DisposableEffect(current) {

@@ -7,6 +7,7 @@ import android.view.Surface
 import android.view.TextureView
 import com.google.android.filament.Camera
 import com.google.android.filament.Engine
+import com.google.android.filament.Colors
 import com.google.android.filament.EntityManager
 import com.google.android.filament.Filament
 import com.google.android.filament.IndirectLight
@@ -22,6 +23,7 @@ import com.google.android.filament.gltfio.FilamentAsset
 import com.google.android.filament.gltfio.Gltfio
 import com.google.android.filament.gltfio.ResourceLoader
 import com.google.android.filament.gltfio.UbershaderProvider
+import com.scttech.android.kotlin.openfitness.domain.model.SkinTone
 import java.nio.ByteBuffer
 import kotlin.math.atan
 import kotlin.math.cos
@@ -88,7 +90,7 @@ internal class ExerciseAnimationPlayer(model: ByteBuffer) {
 
         propEntities = AnimationProp.entries.associateWith { prop ->
             // The prop bones share their mesh's name, so keep only the entity that actually draws.
-            asset.getEntitiesByName(prop.meshName).filter { engine.renderableManager.hasComponent(it) }.toIntArray()
+            prop.meshNames.flatMap { asset.getEntitiesByName(it).asList() }.filter { engine.renderableManager.hasComponent(it) }.toIntArray()
         }
 
         // A flat, shadowless rig: one sun for shape, a uniform ambient term so the underside is not black.
@@ -142,6 +144,15 @@ internal class ExerciseAnimationPlayer(model: ByteBuffer) {
 
     private fun animator() = asset.instance.animator
 
+    /** The glTF material the skin is split into, so tinting it leaves the clothes, hair and eyes alone. */
+    private val skinMaterial = asset.instance.materialInstances.firstOrNull { it.name == SKIN_MATERIAL_NAME }
+
+    /** Recolours the figure's skin. A model file without a `Skin` material keeps its painted colours. */
+    fun setSkinTone(tone: SkinTone) {
+        val f = tone.linearFactor
+        skinMaterial?.setParameter("baseColorFactor", Colors.RgbaType.LINEAR, f[0], f[1], f[2], 1f)
+    }
+
     fun attachTo(textureView: TextureView) {
         this.textureView = textureView
         uiHelper.attachTo(textureView)
@@ -178,7 +189,7 @@ internal class ExerciseAnimationPlayer(model: ByteBuffer) {
      * loop and takes the extent of the skeleton's joints (the mesh is skinned, so it has no bounds of its own).
      */
     private fun frameClip(animator: com.google.android.filament.gltfio.Animator, index: Int, wanted: Set<AnimationProp>) {
-        val hiddenPropNames = (AnimationProp.entries - wanted).map { it.meshName }.toSet()
+        val hiddenPropNames = (AnimationProp.entries - wanted).flatMap { it.meshNames }.toSet()
         val joints = asset.instance.getJointsAt(0).filter { asset.getName(it) !in hiddenPropNames }
         val transforms = engine.transformManager
         val matrix = FloatArray(16)
@@ -313,6 +324,7 @@ internal class ExerciseAnimationPlayer(model: ByteBuffer) {
         }
 
         const val TAG = "ExerciseAnimation"
+        const val SKIN_MATERIAL_NAME = "Skin"
         const val DEFAULT_AZIMUTH_DEGREES = 25f
         const val SIDE_AZIMUTH_DEGREES = 70f
 

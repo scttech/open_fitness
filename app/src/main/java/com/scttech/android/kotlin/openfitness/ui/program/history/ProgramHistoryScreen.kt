@@ -80,6 +80,10 @@ internal fun ProgramHistoryScreen(
                 ) {
                     Text(uiState.program.name, style = MaterialTheme.typography.headlineSmall)
 
+                    Text("Personal bests", style = MaterialTheme.typography.titleLarge)
+                    Text("Highest session total: ${uiState.bestSessionTotal?.let { "$it $unit" } ?: "—"}")
+                    Text("Highest single set: ${uiState.bestSingleSet?.let { "$it $unit" } ?: "—"}")
+
                     Text("Test results ($unit)", style = MaterialTheme.typography.titleLarge)
                     if (uiState.tests.isEmpty()) {
                         Text(

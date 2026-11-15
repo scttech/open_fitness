@@ -32,6 +32,8 @@ sealed interface ProgramHistoryUiState {
         val program: Program,
         val tests: List<TestPoint>,
         val sessionTotals: List<SessionTotal>,
+        val bestSessionTotal: Int?,
+        val bestSingleSet: Int?,
     ) : ProgramHistoryUiState
     data object NotFound : ProgramHistoryUiState
 }
@@ -57,6 +59,8 @@ class ProgramHistoryViewModel @Inject constructor(
                 program = program,
                 tests = tests.toTestPoints(),
                 sessionTotals = sessions.toSessionTotals(),
+                bestSessionTotal = sessions.toSessionTotals().maxOfOrNull { it.total },
+                bestSingleSet = sessions.bestSingleSet(),
             )
         }
     }.stateIn(
@@ -79,3 +83,10 @@ internal fun List<ProgramSession>.toSessionTotals(timeZone: TimeZone = TimeZone.
                 total = session.loggedSets.sumOf { it.reps ?: 0 },
             )
         }
+
+/** The most reps logged in any one set across completed sessions, or null if none. */
+internal fun List<ProgramSession>.bestSingleSet(): Int? =
+    filter { it.isCompleted }
+        .flatMap { it.loggedSets }
+        .mapNotNull { it.reps }
+        .maxOrNull()

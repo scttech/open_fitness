@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scttech.android.kotlin.openfitness.data.repository.ProfileRepository
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
+import com.scttech.android.kotlin.openfitness.domain.model.SkinTone
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import com.scttech.android.kotlin.openfitness.ui.common.timer.timerColorPrefs
@@ -28,7 +29,8 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = combine(
         profileRepository.observeCurrentProfile(),
         profileRepository.themeMode,
-    ) { profile: Profile?, themeMode: ThemeMode ->
+        profileRepository.skinTone,
+    ) { profile: Profile?, themeMode: ThemeMode, skinTone: SkinTone ->
         if (profile == null) {
             SettingsUiState.Loading
         } else {
@@ -40,6 +42,7 @@ class SettingsViewModel @Inject constructor(
                 timerWorkColor = colors.workColor,
                 timerRestColor = colors.restColor,
                 themeMode = themeMode,
+                skinTone = skinTone,
             )
         }
     }
@@ -105,6 +108,12 @@ class SettingsViewModel @Inject constructor(
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             profileRepository.setThemeMode(mode)
+        }
+    }
+
+    fun setSkinTone(tone: SkinTone) {
+        viewModelScope.launch {
+            profileRepository.setSkinTone(tone)
         }
     }
 

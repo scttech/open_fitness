@@ -62,7 +62,28 @@ class ExerciseAnimationTest {
     @Test
     fun theGlbHasAMeshForEveryProp() {
         val meshes = glbJson().getValue("meshes").jsonArray.map { it.jsonObject.getValue("name").jsonPrimitive.content }
-        AnimationProp.entries.forEach { assertTrue("${it.meshName} missing from GLB", it.meshName in meshes) }
+        AnimationProp.entries.flatMap { it.meshNames }.forEach { assertTrue("$it missing from GLB", it in meshes) }
+    }
+
+    @Test
+    fun barbellDumbbellAndBenchClipsShowTheirProps() {
+        assertEquals(setOf(AnimationProp.BARBELL), propsFor("Deadlift"))
+        assertEquals(setOf(AnimationProp.BARBELL), propsFor("BarbellCurl"))
+        assertEquals(setOf(AnimationProp.BARBELL, AnimationProp.BENCH), propsFor("SkullCrusher"))
+        assertEquals(setOf(AnimationProp.BARBELL, AnimationProp.BENCH), propsFor("BarbellBenchPress"))
+        assertEquals(setOf(AnimationProp.BARBELL, AnimationProp.BENCH), propsFor("CloseGripBenchPress"))
+        assertEquals(setOf(AnimationProp.DUMBBELLS, AnimationProp.BENCH), propsFor("DumbbellBenchPress"))
+        assertEquals(setOf(AnimationProp.DUMBBELLS, AnimationProp.BENCH), propsFor("DumbbellFly"))
+        assertEquals(setOf(AnimationProp.DUMBBELLS), propsFor("LateralRaise"))
+        assertEquals(setOf(AnimationProp.MACE), propsFor("MaceGoodMorning"))
+        assertEquals(setOf(AnimationProp.BARBELL), propsFor("GoodMorning"))
+    }
+
+    @Test
+    fun theGlbSplitsSkinFromClothes() {
+        val materials = glbJson().getValue("materials").jsonArray.map { it.jsonObject.getValue("name").jsonPrimitive.content }
+        assertTrue("Skin" in materials)
+        assertTrue("ClothesHairEyes" in materials)
     }
 
     @Test

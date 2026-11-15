@@ -9,6 +9,7 @@ import com.scttech.android.kotlin.openfitness.data.local.entity.asEntity
 import com.scttech.android.kotlin.openfitness.domain.model.MAX_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.MIN_TIMER_COUNTDOWN_SECONDS
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
+import com.scttech.android.kotlin.openfitness.domain.model.SkinTone
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,6 +49,12 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         preferencesDataSource.setThemeMode(mode)
+    }
+
+    override val skinTone: Flow<SkinTone> = preferencesDataSource.skinTone
+
+    override suspend fun setSkinTone(tone: SkinTone) {
+        preferencesDataSource.setSkinTone(tone)
     }
 
     override suspend fun createProfile(name: String, colorIndex: Int): Long {

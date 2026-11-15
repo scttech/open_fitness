@@ -2,6 +2,7 @@ package com.scttech.android.kotlin.openfitness.data.repository
 
 import android.net.Uri
 import com.scttech.android.kotlin.openfitness.domain.model.Profile
+import com.scttech.android.kotlin.openfitness.domain.model.SkinTone
 import com.scttech.android.kotlin.openfitness.domain.model.ThemeMode
 import com.scttech.android.kotlin.openfitness.domain.model.WeightUnit
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,9 @@ interface ProfileRepository {
     /** App-wide light/dark preference, independent of which profile is active. */
     val themeMode: Flow<ThemeMode>
     suspend fun setThemeMode(mode: ThemeMode)
+    /** App-wide skin tone of the animated figure, independent of which profile is active. */
+    val skinTone: Flow<SkinTone>
+    suspend fun setSkinTone(tone: SkinTone)
     suspend fun createProfile(name: String, colorIndex: Int): Long
     suspend fun renameProfile(profile: Profile, newName: String)
     suspend fun deleteProfile(profile: Profile)
